@@ -43,13 +43,13 @@ class AcmeFixtures(Base):
     def test_the_ready_release_is_a_go_with_every_criterion_met(self) -> None:
         d = self.call(FIXTURES / "acme-ready")
         self.assertEqual(d["decision"], "go")
-        self.assertEqual((d["met"], d["total"]), (5, 5))
+        self.assertEqual((d["met"], d["total"]), (6, 6))
         self.assertEqual(d["open"], [])
 
     def test_the_held_release_is_a_no_go_naming_each_open_criterion_and_its_owner(self) -> None:
         d = self.call(FIXTURES / "acme-held")
         self.assertEqual(d["decision"], "no-go")
-        self.assertEqual((d["met"], d["total"]), (2, 5))
+        self.assertEqual((d["met"], d["total"]), (3, 6))
         self.assertEqual(self.open_ids(d), ["ci", "bugs", "evals"])
         self.assertEqual([o["owner"] for o in d["open"]], ["Nadia Flores", "Marcus Lee", "Sam Patel"])
         reasons = " ".join(r for o in d["open"] for r in o["reasons"])
@@ -102,16 +102,16 @@ class AllOrNothing(Base):
 
     def test_one_open_criterion_is_enough_for_a_no_go(self) -> None:
         fx = self.fixture("acme-ready")
-        edit_release(fx, rollback={"plan": "Turn the flag off.", "owner": "Lena Okafor", "tested_on": ""})
+        edit_release(fx, rollback={"plan": "Turn the flag off.", "owner": "Lena Okafor", "tested_on": "", "trigger": "Errors above 1%"})
         d = self.call(fx)
-        self.assertEqual((d["decision"], d["met"], d["total"]), ("no-go", 4, 5))
+        self.assertEqual((d["decision"], d["met"], d["total"]), ("no-go", 5, 6))
         self.assertEqual(self.open_ids(d), ["rollback"])
 
     def test_the_eval_gate_applies_only_to_an_ai_feature(self) -> None:
         fx = self.fixture("acme-ready")
         edit_release(fx, ai_feature=False)
         d = self.call(fx, evals=True)
-        self.assertEqual((d["decision"], d["total"]), ("go", 4))
+        self.assertEqual((d["decision"], d["total"]), ("go", 5))
         self.assertIn("does not apply", readiness.report(d))
 
     def test_a_no_go_report_never_prints_a_go(self) -> None:
@@ -207,18 +207,18 @@ class Flags(Base):
 class Rollback(Base):
     def test_a_stale_rehearsal_blocks(self) -> None:
         fx = self.fixture("acme-ready")
-        edit_release(fx, rollback={"plan": "Flag off.", "owner": "Lena Okafor", "tested_on": "2026-10-05"})
+        edit_release(fx, rollback={"plan": "Flag off.", "owner": "Lena Okafor", "tested_on": "2026-10-05", "trigger": "Errors above 1%"})
         d = self.call(fx)
         self.assertIn("46 days ago, beyond the 30-day limit", d["open"][0]["reasons"][0])
 
     def test_a_rehearsal_after_the_as_of_date_blocks(self) -> None:
         fx = self.fixture("acme-ready")
-        edit_release(fx, rollback={"plan": "Flag off.", "owner": "Lena Okafor", "tested_on": "2026-12-01"})
+        edit_release(fx, rollback={"plan": "Flag off.", "owner": "Lena Okafor", "tested_on": "2026-12-01", "trigger": "Errors above 1%"})
         self.assertEqual(self.open_ids(self.call(fx)), ["rollback"])
 
     def test_no_plan_and_no_owner_are_both_named(self) -> None:
         fx = self.fixture("acme-ready")
-        edit_release(fx, rollback={"plan": "", "owner": "", "tested_on": "2026-11-12"})
+        edit_release(fx, rollback={"plan": "", "owner": "", "tested_on": "2026-11-12", "trigger": "Errors above 1%"})
         reasons = self.call(fx)["open"][0]["reasons"]
         self.assertEqual(len(reasons), 2)
 

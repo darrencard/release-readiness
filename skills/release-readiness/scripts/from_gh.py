@@ -3,13 +3,16 @@
 
 Usage:
   python3 scripts/from_gh.py --repo OWNER/NAME --ref <sha|branch|tag> --out run/
-      [--label bug] [--milestone "1.4"] [--required "test" --required "lint"]
+      [--label bug] [--milestone "1.4"] [--protected-branch main | --required "test" --required "lint"]
 
   Offline, from saved gh output (what the tests use):
-  python3 scripts/from_gh.py --check-runs-json runs.json --issues-json issues.json --commit <sha> --out run/
+  python3 scripts/from_gh.py --check-runs-json runs.json [--statuses-json statuses.json] --issues-json issues.json --commit <sha> --out run/
 
 It only reads. It calls gh with fixed arguments (never a shell) and makes no other network call.
-Check runs come from the GitHub Checks API; legacy commit statuses are not read in v0.1.
+It reads both GitHub Actions check runs and commit statuses (CircleCI, Jenkins, Buildkite and other
+external CI post statuses), latest per name. Required checks come from --required, or from the branch
+protection rule with --protected-branch; if neither is given, or the rule cannot be read, every check
+counts as required, which is the strict reading.
 Severity comes from issue labels such as severity:critical, sev1 or P0. An issue with no severity
 label is written with an empty severity, and readiness.py counts it as untriaged.
 
@@ -86,6 +89,27 @@ def ci_rows(check_runs: list[dict], required: set[str] | None = None) -> list[di
     return rows
 
 
+STATUS_STATES = {"success": "success", "failure": "failure", "error": "failure", "pending": "pending"}
+
+
+def status_runs(statuses: list[dict]) -> list[dict]:
+    """Commit statuses in the check-run shape, so ci_rows treats both the same way."""
+    runs = []
+    for st in statuses:
+        state = str(st.get("state", "")).lower()
+        runs.append(
+            {
+                "name": str(st.get("context", "")),
+                "status": "in_progress" if state == "pending" else "completed",
+                "conclusion": STATUS_STATES.get(state, state),
+                "head_sha": str(st.get("sha", "")),
+                "html_url": str(st.get("target_url") or ""),
+                "started_at": str(st.get("updated_at") or st.get("created_at") or ""),
+            }
+        )
+    return runs
+
+
 def bug_rows(issues: list[dict]) -> list[dict]:
     rows = []
     for issue in issues:
@@ -120,6 +144,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--label", default="bug", help="the label that marks a bug (default: bug)")
     ap.add_argument("--milestone", help="only issues in this milestone")
     ap.add_argument("--required", action="append", help="a required check name; repeat. Default: every check is required")
+    ap.add_argument("--protected-branch", help="read required checks from this branch's protection rule")
+    ap.add_argument("--statuses-json", type=Path, help="saved commit statuses, instead of calling gh")
     ap.add_argument("--check-runs-json", type=Path, help="saved check runs, instead of calling gh")
     ap.add_argument("--issues-json", type=Path, help="saved issues, instead of calling gh")
     ap.add_argument("--commit", help="the release commit, with the saved JSON options")
@@ -127,8 +153,11 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     required = set(args.required) if args.required else None
     try:
-        if args.check_runs_json or args.issues_json:
+        if args.check_runs_json or args.issues_json or args.statuses_json:
             runs = parse_ndjson(args.check_runs_json.read_text(encoding="utf-8")) if args.check_runs_json else None
+            if args.statuses_json:
+                statuses = status_runs(parse_ndjson(args.statuses_json.read_text(encoding="utf-8")))
+                runs = (runs or []) + [{**r, "head_sha": r["head_sha"] or (args.commit or "")} for r in statuses]
             issues = json.loads(args.issues_json.read_text(encoding="utf-8")) if args.issues_json else None
             sha = args.commit or ""
         else:
@@ -137,6 +166,16 @@ def main(argv: list[str] | None = None) -> int:
             sha = run_gh(["api", f"repos/{args.repo}/commits/{args.ref}", "--jq", ".sha"]).strip()
             jq = ".check_runs[] | {name, status, conclusion, head_sha, html_url, started_at}"
             runs = parse_ndjson(run_gh(["api", f"repos/{args.repo}/commits/{sha}/check-runs", "--paginate", "--jq", jq]))
+            sjq = ".statuses[] | {context, state, target_url, updated_at}"
+            statuses = status_runs(parse_ndjson(run_gh(["api", f"repos/{args.repo}/commits/{sha}/status", "--jq", sjq])))
+            runs += [{**r, "head_sha": sha} for r in statuses]
+            if args.protected_branch and required is None:
+                path = f"repos/{args.repo}/branches/{args.protected_branch}/protection/required_status_checks"
+                try:
+                    required = {line.strip() for line in run_gh(["api", path, "--jq", ".contexts[]"]).splitlines() if line.strip()}
+                    print(f"required checks from {args.protected_branch} protection: {', '.join(sorted(required)) or 'none'}")
+                except GhError as exc:
+                    print(f"note: could not read branch protection ({exc}); every check counts as required", file=sys.stderr)
             cmd = ["issue", "list", "--repo", args.repo, "--state", "open", "--label", args.label]
             cmd += ["--json", "number,title,labels,assignees,url,state", "--limit", "1000"]
             if args.milestone:

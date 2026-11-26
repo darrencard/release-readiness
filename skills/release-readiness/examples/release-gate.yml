@@ -1,0 +1,40 @@
+# A release gate: on every v* tag, make the go or no-go call and fail the job on a no-go.
+# Copy to .github/workflows/release-gate.yml, and copy this skill's folder into your repository at
+# tools/release-readiness, so the gate runs code you have reviewed and nothing is fetched at run time.
+# Commit release/release.json, release/flags.csv and, for an AI feature, release/evals.csv;
+# CI and bugs are read live through gh. Read-only. Every action is pinned to a commit SHA.
+name: Release gate
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  checks: read
+  statuses: read
+  issues: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+      - name: Read CI and bugs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/release-readiness/scripts/from_gh.py --repo "$GITHUB_REPOSITORY" --ref "$GITHUB_SHA" --out run/
+      - name: Make the call
+        run: |
+          set +e
+          python3 tools/release-readiness/scripts/readiness.py --release release/release.json \
+            --ci run/ci.csv --bugs run/bugs.csv --flags release/flags.csv --evals release/evals.csv --out run/
+          code=$?
+          cat run/report.md >> "$GITHUB_STEP_SUMMARY"
+          exit $code

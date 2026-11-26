@@ -1,0 +1,38 @@
+{
+  "name": "Acme Invoice Chaser 1.0",
+  "illustrative": true,
+  "owner": "Marcus Lee",
+  "as_of": "2026-11-20",
+  "commit": "9b81d07a55e2",
+  "ai_feature": true,
+  "owners": {
+    "ci": "Nadia Flores",
+    "bugs": "Marcus Lee",
+    "flags": "Nadia Flores",
+    "rollback": "Lena Okafor",
+    "evals": "Sam Patel",
+    "brief": "Marcus Lee"
+  },
+  "rollback": {
+    "plan": "Turn off invoice_chaser and stop the reminder queue, then redeploy release 3.8.2.",
+    "owner": "Lena Okafor",
+    "tested_on": "2026-11-10",
+    "method": "flag off, drain queue, redeploy",
+    "trigger": "Any reminder sent after an invoice is marked paid, or the complaint rate on reminders above 0.5%"
+  },
+  "policy": {
+    "max_open_bugs": {
+      "blocker": 0,
+      "critical": 0,
+      "major": 2
+    },
+    "max_initial_rollout_percent": 25
+  },
+  "brief": {
+    "metric": "Days sales outstanding for accounts using the chaser",
+    "target": "Down 5 days within 60 days",
+    "source": "Finance warehouse query dso_by_account, filtered to chaser accounts",
+    "review_on": "2027-01-29",
+    "owner": "Marcus Lee"
+  }
+}

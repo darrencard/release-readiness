@@ -16,12 +16,10 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from helpers import FIXTURES, run_script
+from helpers import FIXTURES, GH, run_script
 
 import from_gh
 from readiness import decide
-
-GH = FIXTURES / "gh"
 
 
 class Reader(unittest.TestCase):

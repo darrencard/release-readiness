@@ -12,7 +12,9 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 SKILL = ROOT / "skills" / "release-readiness"
 SCRIPTS = SKILL / "scripts"
-FIXTURES = HERE / "fixtures"
+# The Acme examples ship inside the skill, so --demo works after install. Saved gh output stays here.
+FIXTURES = SKILL / "examples"
+GH = HERE / "fixtures" / "gh"
 INPUTS = ("ci", "bugs", "flags", "evals")
 
 sys.path.insert(0, str(SCRIPTS))

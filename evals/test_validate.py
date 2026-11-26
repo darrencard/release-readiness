@@ -18,7 +18,7 @@ from helpers import FIXTURES, paths, run_script
 from readiness import decide
 from validate import check
 
-HELD_DRAFT = """Invoice Chaser 1.0 is a no-go as of 2026-11-20: 2 of 5 criteria are met.
+HELD_DRAFT = """Invoice Chaser 1.0 is a no-go as of 2026-11-20: 3 of 6 criteria are met.
 
 - CI: integration-tests is failing. Nadia Flores owns it.
 - Bugs: 1 critical bug is open (#2210). Marcus Lee owns it.
@@ -59,7 +59,7 @@ class Validate(unittest.TestCase):
         self.assertIn("98", errors[0]["detail"])
 
     def test_a_go_draft_only_needs_its_numbers_to_be_computed(self) -> None:
-        draft = "Quote Assistant 2.4 is a go: all 5 criteria are met. Line items pass 97.0% of 400 cases."
+        draft = "Quote Assistant 2.4 is a go: all 6 criteria are met. Line items pass 97.0% of 400 cases."
         self.assertEqual(check(self.ready, draft), [])
         self.assertEqual(rules(check(self.ready, draft + " That is 3x better.")), ["figure-not-computed"])
 

@@ -10,6 +10,8 @@ Rules (each one blocks):
   go-claim-on-no-go      The decision is no-go and the draft says the release is ready, cleared or a go.
   open-criterion-missing The decision is no-go and the draft does not name an open criterion.
   owner-missing          The decision is no-go and the draft does not name an open criterion's owner.
+  waiver-missing         A criterion is waived and the draft does not name it and its approver.
+  all-met-claim          A criterion is waived and the draft says every criterion is met.
   figure-not-computed    The draft prints a number, or a multiplier such as 3x, that is not in decision.json.
 
 The model may reword the draft. It may not change the call, drop an open criterion or invent a number.
@@ -38,7 +40,14 @@ GO_PATTERNS = [
     r"\bshipping (?:today|now|this week)\b",
 ]
 NEGATIONS = re.compile(r"\b(?:not|isn'?t|aren'?t|no|never|cannot|can'?t|until)\b[^.!?\n]{0,24}$", re.IGNORECASE)
-KEYWORDS = {"ci": ("ci", "check"), "bugs": ("bug",), "flags": ("flag",), "rollback": ("rollback", "roll back"), "evals": ("eval",)}
+KEYWORDS = {
+    "ci": ("ci", "check"),
+    "bugs": ("bug",),
+    "flags": ("flag",),
+    "rollback": ("rollback", "roll back"),
+    "brief": ("brief", "metric", "target"),
+    "evals": ("eval",),
+}
 NUMBER = re.compile(r"(?<![\w.])\d+(?:\.\d+)?(?![\w])")
 MULTIPLIER = re.compile(r"(?<![\w.])\d+(?:\.\d+)?x\b", re.IGNORECASE)
 
@@ -53,7 +62,8 @@ def go_claims(text: str) -> list[str]:
 
 
 def allowed_numbers(d: dict) -> set[str]:
-    texts = [str(d["met"]), str(d["total"]), str(len(d["open"])), d["release"], d["commit"], d["as_of"]]
+    texts = [str(d["met"]), str(d["total"]), str(len(d["open"])), str(len(d.get("waived") or [])), d["release"], d["commit"], d["as_of"]]
+    texts += [w["expires"] for w in d.get("waived") or []]
     for c in d["criteria"]:
         texts += c["reasons"]
         for f in c["figures"]:
@@ -79,6 +89,13 @@ def check(d: dict, draft: str) -> list[dict]:
                 errors.append({"rule": "open-criterion-missing", "detail": f"The draft does not name the open criterion: {o['label']}."})
             if o["owner"].lower() not in lower:
                 errors.append({"rule": "owner-missing", "detail": f"The draft does not name {o['owner']}, who owns: {o['label']}."})
+    waived = d.get("waived") or []
+    for w in waived:
+        if not any(k in lower for k in KEYWORDS.get(w["id"], (w["id"],))) or w["approved_by"].lower() not in lower:
+            errors.append({"rule": "waiver-missing", "detail": f"Name the waived criterion ({w['label']}) and its approver, {w['approved_by']}."})
+    if waived:
+        for m in re.finditer(r"\ball (?:the |\d+ )?criteria (?:are |were )?met\b", draft, re.IGNORECASE):
+            errors.append({"rule": "all-met-claim", "detail": f"The draft says '{m.group(0)}', and {len(waived)} criteria are waived, not met."})
     allowed = allowed_numbers(d)
     for n in NUMBER.findall(draft):
         if canonical(n) not in allowed:
