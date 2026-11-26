@@ -1,0 +1,4 @@
+id,title,severity,state,owner
+1412,Quote PDF footer wraps on A5 paper,minor,open,Jo Kim
+1420,Draft quote shows tax line twice for zero-rated items,major,open,Jo Kim
+1388,Assistant suggests a line item from a deleted price list,critical,closed,Sam Patel

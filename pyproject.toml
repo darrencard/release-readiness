@@ -1,0 +1,22 @@
+[project]
+name = "release-readiness"
+version = "0.1.0"
+description = "A skill that makes a go or no-go call for a software release from CI, bugs, flags, rollback and evals."
+requires-python = ">=3.11"
+# Standard library only, on purpose: the scripts run inside sandboxes that cannot install packages.
+dependencies = []
+
+[tool.ruff]
+line-length = 160
+target-version = "py311"
+
+[tool.ruff.lint]
+# E, F: errors and unused names. I: import order. B: likely bugs. UP: old syntax.
+# SIM: needless complexity. S: security (bandit).
+select = ["E", "F", "I", "B", "UP", "SIM", "S"]
+
+[tool.ruff.lint.isort]
+# evals/helpers.py puts the scripts folder on sys.path, so it must be imported before the scripts.
+known-local-folder = ["helpers"]
+known-first-party = ["readiness", "from_gh", "validate"]
+section-order = ["future", "standard-library", "third-party", "local-folder", "first-party"]

@@ -1,0 +1,6 @@
+{
+  "name": "release-readiness",
+  "version": "0.1.0",
+  "description": "Make a go or no-go call for a release from CI, open bugs by severity, feature flags, the rollback plan and an eval gate for AI features. All-or-nothing: every open criterion is named with its owner, and every figure is computed in code with its source.",
+  "author": { "name": "Dacard" }
+}
