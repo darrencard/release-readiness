@@ -20,7 +20,7 @@ select = ["E", "F", "I", "B", "UP", "SIM", "S"]
 [tool.ruff.lint.isort]
 # evals/helpers.py puts the scripts folder on sys.path, so it must be imported before the scripts.
 known-local-folder = ["helpers"]
-known-first-party = ["readiness", "from_gh", "validate", "loop", "landing_brief", "render_html"]
+known-first-party = ["readiness", "from_gh", "validate", "loop", "landing_brief", "render_html", "svgkit"]
 section-order = ["future", "standard-library", "third-party", "local-folder", "first-party"]
 
 [tool.ruff.lint.per-file-ignores]

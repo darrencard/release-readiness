@@ -335,7 +335,9 @@ def engineers(d: dict) -> str:
         held = "; ".join(f"<code>{e(h['finding'])}</code> closed by <code>{e(h['closed_by'] or 'no check')}</code>" for h in d["spec_holds"])
         eng.append(f"<p>Spec holds as stored: {held}.</p>")
     if d["bet"]:
-        eng.append(f"<p>With --loop and --bet, the run adds its page to the project file: the <code>release</code> key of <code>landing/{e(d['bet'])}.json</code>, and no other key.</p>")
+        eng.append(
+            f"<p>With --loop and --bet, the run adds its page to the project file: the <code>release</code> key of <code>landing/{e(d['bet'])}.json</code>, and no other key.</p>"
+        )
     eng.append("<p>readiness.py exits 0 on ready to ship, 1 on hold and 2 when an input cannot be read, so it can gate a CI job.</p>")
     eng.append(ledger(d))
     return fold("For your engineers", "".join(eng))

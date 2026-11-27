@@ -121,13 +121,21 @@ class Sample(unittest.TestCase):
         brass = re.findall(r"[^}]*var\(--brass[^}]*}", page_css)
         self.assertTrue(brass and all(r.lstrip("}").lstrip().startswith((".next", ".wv")) for r in brass), "brass is only who decides and who waived")
         for svg in svgkit.visuals_in(page):
-            for m in re.finditer(r'<text[^>]*color:var\(--brass\)[^>]*>([^<]*)</text>', svg):
+            for m in re.finditer(r"<text[^>]*color:var\(--brass\)[^>]*>([^<]*)</text>", svg):
                 self.assertRegex(m.group(1), r"^(?:Waived by |UNTIL )")
         self.assertIn('class="sk-ill"', body)
 
     def test_the_page_follows_the_sample_anatomy(self) -> None:
         body = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8").split('<main class="solo">', 1)[1]
-        order = ['class="sk-hdr"', "<h1>Acme quote drafting v1.0 is ready to ship, with one waiver.</h1>", 'class="rw"', 'class="sk-wide"', "What to do next", 'class="cols"', "For your engineers"]
+        order = [
+            'class="sk-hdr"',
+            "<h1>Acme quote drafting v1.0 is ready to ship, with one waiver.</h1>",
+            'class="rw"',
+            'class="sk-wide"',
+            "What to do next",
+            'class="cols"',
+            "For your engineers",
+        ]
         at = [body.index(x) for x in order]
         self.assertEqual(at, sorted(at))
         self.assertEqual(body.count('<div class="next">'), 1)
@@ -155,7 +163,11 @@ class Sample(unittest.TestCase):
                 "Acme quote drafting v1.0 is ready to ship: 6 of 7 checks are ready to ship; "
                 "open bugs holds under a waiver from Head of Product, Quoting squad until 2026-09-19.",
             )
-        held = readiness.decide(FIXTURES / "acme-held" / "release.json", *(FIXTURES / "acme-held" / f"{k}.csv" for k in ("ci", "bugs", "flags", "evals")), FIXTURES / "acme-held" / "brief.md")
+        held = readiness.decide(
+            FIXTURES / "acme-held" / "release.json",
+            *(FIXTURES / "acme-held" / f"{k}.csv" for k in ("ci", "bugs", "flags", "evals")),
+            FIXTURES / "acme-held" / "brief.md",
+        )
         label = re.search(r'aria-label="([^"]+)"', render_html.gates(held, "wide")).group(1)
         self.assertTrue(label.endswith("must hold: 3 of 6 checks are ready to ship, and code checks, open bugs and quality tests hold."), label)
         self.assertEqual(render_html.gates(held, "wide").count('fill="var(--t1)"'), 3, "one solid gate per held check")
@@ -163,9 +175,25 @@ class Sample(unittest.TestCase):
     def test_public_copy_uses_plain_words(self) -> None:
         page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
         twin = (SAMPLE / "release-readiness.md").read_text(encoding="utf-8")
-        for name, public in (("page", svgkit.page_text(page.split("For your engineers", 1)[0]).lower()), ("twin", twin.split("## For your engineers", 1)[0].lower())):
+        for name, public in (
+            ("page", svgkit.page_text(page.split("For your engineers", 1)[0]).lower()),
+            ("twin", twin.split("## For your engineers", 1)[0].lower()),
+        ):
             with self.subTest(output=name):
-                for word in (r"\bbets?\b", "eval", "rollback", "rollout", r"\bbar\b", r"\.csv", r"\.json", r"(?<![-|])--[a-z]", r"\bci\b", "commit", "holdout", "traces"):
+                for word in (
+                    r"\bbets?\b",
+                    "eval",
+                    "rollback",
+                    "rollout",
+                    r"\bbar\b",
+                    r"\.csv",
+                    r"\.json",
+                    r"(?<![-|])--[a-z]",
+                    r"\bci\b",
+                    "commit",
+                    "holdout",
+                    "traces",
+                ):
                     self.assertIsNone(re.search(word, public), word)
                 self.assertIsNone(re.search(r"\bspec\b(?!-auditor)", public), "spec only in spec-auditor's name")
         self.assertIn("the landing brief, a one-page plan: what good looks like, by when, at what cost", page)

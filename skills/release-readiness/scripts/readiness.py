@@ -756,7 +756,15 @@ PLAIN_LABELS = {
     "evals": "Quality tests pass on the version being released",
     "spec": "Build plan holds from spec-auditor are closed",
 }
-SHORT = {"ci": "Code checks", "bugs": "Open bugs", "flags": "Off switch", "rollback": "Undo plan", "brief": "Brief", "evals": "Quality tests", "spec": "Build plan"}
+SHORT = {
+    "ci": "Code checks",
+    "bugs": "Open bugs",
+    "flags": "Off switch",
+    "rollback": "Undo plan",
+    "brief": "Brief",
+    "evals": "Quality tests",
+    "spec": "Build plan",
+}
 WAIVER_MEANS = "A waiver is a named person's OK to ship despite a failed check, with an expiry date."
 BRIEF_MEANS = "the landing brief, a one-page plan: what good looks like, by when, at what cost"
 
@@ -921,7 +929,10 @@ def report(d: dict) -> str:
     if raw:
         lines += ["", "Notes as computed:", ""] + [f"- {cell(n)}" for n in raw]
     if d["spec_holds"]:
-        lines += ["", "Spec holds as stored: " + "; ".join(f"{cell(h['finding'])} closed by {cell(h['closed_by'] or 'no check')}" for h in d["spec_holds"]) + "."]
+        lines += [
+            "",
+            "Spec holds as stored: " + "; ".join(f"{cell(h['finding'])} closed by {cell(h['closed_by'] or 'no check')}" for h in d["spec_holds"]) + ".",
+        ]
     lines += ["", "### Evidence ledger", "", "| ID | Figure | Value | Window | Source |", "|---|---|---|---|---|"]
     for c in d["checks"]:
         for f in c["figures"]:
