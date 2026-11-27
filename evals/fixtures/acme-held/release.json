@@ -10,8 +10,7 @@
     "bugs": "Marcus Lee",
     "flags": "Nadia Flores",
     "rollback": "Lena Okafor",
-    "evals": "Sam Patel",
-    "brief": "Marcus Lee"
+    "evals": "Sam Patel"
   },
   "rollback": {
     "plan": "Turn off invoice_chaser and stop the reminder queue, then redeploy release 3.8.2.",
@@ -27,12 +26,5 @@
       "major": 2
     },
     "max_initial_rollout_percent": 25
-  },
-  "brief": {
-    "metric": "Days sales outstanding for accounts using the chaser",
-    "target": "Down 5 days within 60 days",
-    "source": "Finance warehouse query dso_by_account, filtered to chaser accounts",
-    "review_on": "2027-01-29",
-    "owner": "Marcus Lee"
   }
 }

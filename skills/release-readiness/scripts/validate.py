@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
-"""Check a draft release note, Slack post or summary against decision.json before anyone sends it.
+"""Check a draft release note, Slack post or summary against readiness.json before anyone sends it.
 
 Usage:
-  python3 scripts/validate.py --decision run/decision.json --draft draft.md
+  python3 scripts/validate.py --readiness run/readiness.json --draft draft.md
 
 Exit code: 0 clean, 1 the draft overclaims or leaves something out, 2 the inputs could not be read.
 
 Rules (each one blocks):
-  go-claim-on-no-go      The decision is no-go and the draft says the release is ready, cleared or a go.
-  open-criterion-missing The decision is no-go and the draft does not name an open criterion.
-  owner-missing          The decision is no-go and the draft does not name an open criterion's owner.
-  waiver-missing         A criterion is waived and the draft does not name it and its approver.
-  all-met-claim          A criterion is waived and the draft says every criterion is met.
-  figure-not-computed    The draft prints a number, or a multiplier such as 3x, that is not in decision.json.
+  ready-claim-on-hold    The release holds and the draft says it is ready, cleared or a go.
+  held-check-missing     The release holds and the draft does not name a held check.
+  owner-missing          The release holds and the draft does not name a held check's owner.
+  waiver-missing         A check is waived and the draft does not name it and its approver.
+  all-ready-claim        A check is waived and the draft says every check is ready.
+  status-word            The draft says landed, watch or stalled. Those are the bet's words, and only did-it-land sets them.
+  figure-not-computed    The draft prints a number, or a multiplier such as 3x, that is not in readiness.json.
 
-The model may reword the draft. It may not change the call, drop an open criterion or invent a number.
+The model may reword the draft. It may not change the call, drop a held check or invent a number.
 Standard library only. Python 3.11 or later.
 """
 
@@ -36,10 +37,13 @@ GO_PATTERNS = [
     r"\bit'?s a go\b",
     r"\bis a go\b",
     r"\bgo for (?:launch|release)\b",
-    r"\ball (?:the )?criteria (?:are )?met\b",
+    r"\ball (?:the |\d+ )?checks (?:are )?(?:ready|met|green|passing)\b",
     r"\bshipping (?:today|now|this week)\b",
 ]
 NEGATIONS = re.compile(r"\b(?:not|isn'?t|aren'?t|no|never|cannot|can'?t|until)\b[^.!?\n]{0,24}$", re.IGNORECASE)
+# "3 of 6 checks are ready to ship" counts checks; it does not call the release ready.
+COUNTED = re.compile(r"\b\d+ of \d+ checks? (?:are |is )?$", re.IGNORECASE)
+STATUS_WORDS = re.compile(r"\b(?:landed|watch|stalled)\b", re.IGNORECASE)
 KEYWORDS = {
     "ci": ("ci", "check"),
     "bugs": ("bug",),
@@ -47,6 +51,7 @@ KEYWORDS = {
     "rollback": ("rollback", "roll back"),
     "brief": ("brief", "metric", "target"),
     "evals": ("eval",),
+    "spec": ("spec",),
 }
 NUMBER = re.compile(r"(?<![\w.])\d+(?:\.\d+)?(?![\w])")
 MULTIPLIER = re.compile(r"(?<![\w.])\d+(?:\.\d+)?x\b", re.IGNORECASE)
@@ -56,18 +61,21 @@ def go_claims(text: str) -> list[str]:
     hits = []
     for pattern in GO_PATTERNS:
         for m in re.finditer(pattern, text, re.IGNORECASE):
-            if not NEGATIONS.search(text[max(0, m.start() - 40) : m.start()]):
+            before = text[max(0, m.start() - 40) : m.start()]
+            if not NEGATIONS.search(before) and not COUNTED.search(before):
                 hits.append(m.group(0))
     return hits
 
 
 def allowed_numbers(d: dict) -> set[str]:
-    texts = [str(d["met"]), str(d["total"]), str(len(d["open"])), str(len(d.get("waived") or [])), d["release"], d["commit"], d["as_of"]]
+    texts = [str(d["ready"]), str(d["total"]), str(len(d["holds"])), str(len(d.get("waived") or [])), d["release"], d["commit"], d["as_of"]]
     texts += [w["expires"] for w in d.get("waived") or []]
-    for c in d["criteria"]:
+    if d.get("brief"):
+        texts += [d["brief"]["bar"], d["brief"]["by"]]
+    for c in d["checks"]:
         texts += c["reasons"]
         for f in c["figures"]:
-            texts += [f["value"], f["label"]]
+            texts += [str(f["value"]), f["label"], f["window_from"], f["window_to"]]
     found = set()
     for t in texts:
         found.update(canonical(n) for n in NUMBER.findall(str(t)))
@@ -81,37 +89,41 @@ def canonical(n: str) -> str:
 def check(d: dict, draft: str) -> list[dict]:
     errors = []
     lower = draft.lower()
-    if d["decision"] != "go":
+    if d["readiness"] != "ready to ship":
         for hit in go_claims(draft):
-            errors.append({"rule": "go-claim-on-no-go", "detail": f"The decision is no-go, and the draft says '{hit}'."})
-        for o in d["open"]:
+            errors.append({"rule": "ready-claim-on-hold", "detail": f"The release holds, and the draft says '{hit}'."})
+        for o in d["holds"]:
             if not any(k in lower for k in KEYWORDS.get(o["id"], (o["id"],))) and o["label"].lower() not in lower:
-                errors.append({"rule": "open-criterion-missing", "detail": f"The draft does not name the open criterion: {o['label']}."})
+                errors.append({"rule": "held-check-missing", "detail": f"The draft does not name the held check: {o['label']}."})
             if o["owner"].lower() not in lower:
                 errors.append({"rule": "owner-missing", "detail": f"The draft does not name {o['owner']}, who owns: {o['label']}."})
     waived = d.get("waived") or []
     for w in waived:
         if not any(k in lower for k in KEYWORDS.get(w["id"], (w["id"],))) or w["approved_by"].lower() not in lower:
-            errors.append({"rule": "waiver-missing", "detail": f"Name the waived criterion ({w['label']}) and its approver, {w['approved_by']}."})
+            errors.append({"rule": "waiver-missing", "detail": f"Name the waived check ({w['label']}) and its approver, {w['approved_by']}."})
     if waived:
-        for m in re.finditer(r"\ball (?:the |\d+ )?criteria (?:are |were )?met\b", draft, re.IGNORECASE):
-            errors.append({"rule": "all-met-claim", "detail": f"The draft says '{m.group(0)}', and {len(waived)} criteria are waived, not met."})
+        for m in re.finditer(r"\ball (?:the |\d+ )?checks (?:are |were )?(?:ready|met|green|passing)\b", draft, re.IGNORECASE):
+            errors.append({"rule": "all-ready-claim", "detail": f"The draft says '{m.group(0)}', and {len(waived)} waived checks still hold."})
+    for m in STATUS_WORDS.finditer(draft):
+        errors.append(
+            {"rule": "status-word", "detail": f"The draft says '{m.group(0)}'. Landed, watch and stalled are the bet's status, set only by did-it-land."}
+        )
     allowed = allowed_numbers(d)
     for n in NUMBER.findall(draft):
         if canonical(n) not in allowed:
-            errors.append({"rule": "figure-not-computed", "detail": f"The draft prints {n}, which is not in decision.json."})
+            errors.append({"rule": "figure-not-computed", "detail": f"The draft prints {n}, which is not in readiness.json."})
     for m in MULTIPLIER.finditer(draft):
-        errors.append({"rule": "figure-not-computed", "detail": f"The draft prints {m.group(0)}; decision.json computes no multiplier."})
+        errors.append({"rule": "figure-not-computed", "detail": f"The draft prints {m.group(0)}; readiness.json computes no multiplier."})
     return errors
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="Check a draft against decision.json.")
-    ap.add_argument("--decision", required=True, type=Path)
+    ap = argparse.ArgumentParser(description="Check a draft against readiness.json.")
+    ap.add_argument("--readiness", required=True, type=Path)
     ap.add_argument("--draft", required=True, type=Path)
     args = ap.parse_args(argv)
     try:
-        d = json.loads(args.decision.read_text(encoding="utf-8"))
+        d = json.loads(args.readiness.read_text(encoding="utf-8"))
         draft = args.draft.read_text(encoding="utf-8")
     except (OSError, json.JSONDecodeError) as exc:
         print(f"error: {exc}", file=sys.stderr)
@@ -119,7 +131,7 @@ def main(argv: list[str] | None = None) -> int:
     errors = check(d, draft)
     for e in errors:
         print(f"{e['rule']}: {e['detail']}")
-    print(f"{len(errors)} errors" if errors else "0 errors: the draft matches the decision")
+    print(f"{len(errors)} errors" if errors else "0 errors: the draft matches the check")
     return 1 if errors else 0
 
 

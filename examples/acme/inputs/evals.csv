@@ -1,0 +1,3 @@
+eval,cases,passed,threshold,run_at,commit,owner
+quote-text-accurate,200,186,0.9,2026-09-04,5e1c0a9d3b72f4e8,Quoting squad ML engineer
+no-invented-prices,150,150,1.0,2026-09-04,5e1c0a9d3b72f4e8,Quoting squad ML engineer

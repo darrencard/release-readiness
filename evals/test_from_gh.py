@@ -58,7 +58,7 @@ class Reader(unittest.TestCase):
 
 
 class EndToEnd(unittest.TestCase):
-    def test_saved_gh_output_feeds_a_no_go_naming_ci_and_bugs(self) -> None:
+    def test_saved_gh_output_feeds_a_hold_naming_ci_and_bugs(self) -> None:
         work = Path(tempfile.mkdtemp(prefix="rr-gh-"))
         try:
             proc = run_script(
@@ -74,8 +74,8 @@ class EndToEnd(unittest.TestCase):
             )
             self.assertEqual(proc.returncode, 0, proc.stderr)
             held = FIXTURES / "acme-held"
-            d = decide(held / "release.json", work / "ci.csv", work / "bugs.csv", held / "flags.csv", held / "evals.csv")
-            by_id = {o["id"]: " ".join(o["reasons"]) for o in d["open"]}
+            d = decide(held / "release.json", work / "ci.csv", work / "bugs.csv", held / "flags.csv", held / "evals.csv", held / "brief.md")
+            by_id = {o["id"]: " ".join(o["reasons"]) for o in d["holds"]}
             self.assertEqual(sorted(by_id), ["bugs", "ci", "evals"])
             self.assertIn("integration-tests", by_id["ci"])
             self.assertIn("'e2e' is pending", by_id["ci"])

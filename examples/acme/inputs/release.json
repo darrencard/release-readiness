@@ -1,0 +1,34 @@
+{
+  "name": "Acme quote drafting v1.0",
+  "illustrative": true,
+  "owner": "Quoting squad lead",
+  "as_of": "2026-09-05",
+  "commit": "5e1c0a9d3b72f4e8",
+  "owners": {
+    "ci": "Quoting squad tech lead",
+    "bugs": "Quoting squad lead",
+    "flags": "Quoting squad tech lead",
+    "rollback": "Platform on-call lead",
+    "brief": "Head of Product, Quoting squad",
+    "evals": "Quoting squad ML engineer",
+    "spec": "Quoting squad lead"
+  },
+  "rollback": {
+    "plan": "Turn off quote_drafting. Quotes fall back to the manual form; no data to migrate.",
+    "owner": "Platform on-call lead",
+    "tested_on": "2026-08-28",
+    "trigger": "Draft acceptance below 15% for a day, or any draft price not from the price book"
+  },
+  "waivers": [
+    {
+      "check": "bugs",
+      "reason": "Both open major bugs change the draft's wording only. Prices come from the price book in fixed code. Fixes ship in v1.0.1.",
+      "approved_by": "Head of Product, Quoting squad",
+      "expires": "2026-09-19"
+    }
+  ],
+  "policy": {
+    "max_open_bugs": {"blocker": 0, "critical": 0, "major": 1},
+    "max_initial_rollout_percent": 25
+  }
+}

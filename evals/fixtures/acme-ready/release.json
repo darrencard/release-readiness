@@ -10,8 +10,7 @@
     "bugs": "Priya Shah",
     "flags": "Tom Reyes",
     "rollback": "Lena Okafor",
-    "evals": "Sam Patel",
-    "brief": "Priya Shah"
+    "evals": "Sam Patel"
   },
   "rollback": {
     "plan": "Turn off quote_assistant_v24, then redeploy release 2.3.6 from the release branch.",
@@ -27,12 +26,5 @@
       "major": 2
     },
     "max_initial_rollout_percent": 25
-  },
-  "brief": {
-    "metric": "Share of quotes sent without manual edits",
-    "target": "60% of quotes, from a 2.3 baseline of 41%",
-    "source": "Quotes dashboard, 'sent without edits' tile (event quote_sent, edited=false)",
-    "review_on": "2026-12-18",
-    "owner": "Priya Shah"
   }
 }

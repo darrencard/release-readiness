@@ -14,7 +14,7 @@ external CI post statuses), latest per name. Required checks come from --require
 protection rule with --protected-branch; if neither is given, or the rule cannot be read, every check
 counts as required, which is the strict reading.
 Severity comes from issue labels such as severity:critical, sev1 or P0. An issue with no severity
-label is written with an empty severity, and readiness.py counts it as untriaged.
+label is written with an empty severity, and readiness.py counts it as untriaged, which holds the bugs check.
 
 Text from GitHub (titles, check names) is written as data. Standard library only. Python 3.11 or later.
 """

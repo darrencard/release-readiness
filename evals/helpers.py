@@ -12,9 +12,10 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 SKILL = ROOT / "skills" / "release-readiness"
 SCRIPTS = SKILL / "scripts"
-# The Acme examples ship inside the skill, so --demo works after install. Saved gh output stays here.
-FIXTURES = SKILL / "examples"
-GH = HERE / "fixtures" / "gh"
+# Test fixtures: two illustrative Acme releases and saved gh output. The published sample is in examples/acme.
+FIXTURES = HERE / "fixtures"
+GH = FIXTURES / "gh"
+SAMPLE = ROOT / "examples" / "acme"
 INPUTS = ("ci", "bugs", "flags", "evals")
 
 sys.path.insert(0, str(SCRIPTS))
@@ -29,7 +30,9 @@ def copy_fixture(name: str, dest: Path) -> Path:
 
 def paths(fixture: Path, **skip: bool) -> dict[str, Path | None]:
     """The input paths for decide(), with any input passed as skip=True left out."""
-    return {k: None if skip.get(k) else fixture / f"{k}.csv" for k in INPUTS}
+    out: dict[str, Path | None] = {k: None if skip.get(k) else fixture / f"{k}.csv" for k in INPUTS}
+    out["brief"] = None if skip.get("brief") else fixture / "brief.md"
+    return out
 
 
 def edit_release(fixture: Path, **changes: object) -> None:

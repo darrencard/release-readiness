@@ -1,8 +1,8 @@
-# A release gate: on every v* tag, make the go or no-go call and fail the job on a no-go.
+# A release gate: on every v* tag, say ready to ship or hold, and fail the job on a hold.
 # Copy to .github/workflows/release-gate.yml, and copy this skill's folder into your repository at
 # tools/release-readiness, so the gate runs code you have reviewed and nothing is fetched at run time.
-# Commit release/release.json, release/flags.csv and, for an AI feature, release/evals.csv;
-# CI and bugs are read live through gh. Read-only. Every action is pinned to a commit SHA.
+# Commit release/release.json, release/brief.md (the bet's landing brief), release/flags.csv and, for an AI feature,
+# release/evals.csv. CI and bugs are read live through gh. Read-only. Every action is pinned to a commit SHA.
 name: Release gate
 
 on:
@@ -30,10 +30,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: python3 tools/release-readiness/scripts/from_gh.py --repo "$GITHUB_REPOSITORY" --ref "$GITHUB_SHA" --out run/
-      - name: Make the call
+      - name: Ready to ship or hold
         run: |
           set +e
-          python3 tools/release-readiness/scripts/readiness.py --release release/release.json \
+          python3 tools/release-readiness/scripts/readiness.py --release release/release.json --brief release/brief.md \
             --ci run/ci.csv --bugs run/bugs.csv --flags release/flags.csv --evals release/evals.csv --out run/
           code=$?
           cat run/report.md >> "$GITHUB_STEP_SUMMARY"

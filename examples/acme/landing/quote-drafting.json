@@ -1,0 +1,474 @@
+{
+  "schema": "landing-loop/1",
+  "bet": "quote-drafting",
+  "brief": {
+    "path": "briefs/quote-drafting.md",
+    "sha256": "decbe39590cc57b3d47125722a8d43e445d33c8f2f525c00277b94b7937dc95f"
+  },
+  "spec": {
+    "tool": "spec-auditor",
+    "version": "0.3.0",
+    "as_of": "2026-08-03",
+    "source": {
+      "kind": "file",
+      "title": "PRD: Quote drafting assistant",
+      "location": "examples/acme/specs/quote-drafting.md",
+      "updated_at": "",
+      "file": "examples/acme/specs/quote-drafting.md"
+    },
+    "verdict": "hold",
+    "ai_feature": true,
+    "counts": {
+      "hold": {
+        "value": 2,
+        "unit": "findings",
+        "source": "spec-auditor 0.3.0, audit of examples/acme/specs/quote-drafting.md",
+        "window": {
+          "from": "2026-08-03",
+          "to": "2026-08-03"
+        },
+        "as_of": "2026-08-03"
+      },
+      "note": {
+        "value": 1,
+        "unit": "findings",
+        "source": "spec-auditor 0.3.0, audit of examples/acme/specs/quote-drafting.md",
+        "window": {
+          "from": "2026-08-03",
+          "to": "2026-08-03"
+        },
+        "as_of": "2026-08-03"
+      },
+      "pass": {
+        "value": 11,
+        "unit": "findings",
+        "source": "spec-auditor 0.3.0, audit of examples/acme/specs/quote-drafting.md",
+        "window": {
+          "from": "2026-08-03",
+          "to": "2026-08-03"
+        },
+        "as_of": "2026-08-03"
+      }
+    },
+    "brief": {
+      "metric": "Quote draft acceptance rate",
+      "better": "higher",
+      "by": "2026-11-15",
+      "line": "model call",
+      "decides": "Head of Product, Quoting squad",
+      "bar": {
+        "value": 40.0,
+        "unit": "%",
+        "source": "examples/acme/briefs/quote-drafting.md, line 9",
+        "window": {
+          "from": "2026-08-03",
+          "to": "2026-11-15"
+        },
+        "as_of": "2026-08-03"
+      }
+    },
+    "holds": [
+      {
+        "check": "rollback",
+        "file": "spec",
+        "lines": [
+          48,
+          50
+        ],
+        "message": "The rollback plan has no trigger threshold.",
+        "fix": "Say what number triggers it (such as an error rate over 2%) and how it is done."
+      },
+      {
+        "check": "eval-plan",
+        "file": "spec",
+        "lines": [
+          37,
+          39,
+          40
+        ],
+        "message": "The eval plan has no time it runs.",
+        "fix": "State the number of cases, the pass bar as a number, and when the evals run."
+      }
+    ],
+    "notes": [
+      {
+        "check": "baseline",
+        "file": "spec",
+        "lines": [],
+        "message": "No current value for the metric, so the size of the gap to the bar is unknown."
+      }
+    ],
+    "brief_file": {
+      "path": "examples/acme/briefs/quote-drafting.md",
+      "sha256": "decbe39590cc57b3d47125722a8d43e445d33c8f2f525c00277b94b7937dc95f"
+    }
+  },
+  "release": {
+    "tool": "release-readiness 0.3.0",
+    "as_of": "2026-09-05",
+    "release": "Acme quote drafting v1.0",
+    "commit": "5e1c0a9d3b72f4e8",
+    "readiness": "ready to ship",
+    "counts": {
+      "ready": {
+        "value": 6,
+        "unit": "checks ready to ship",
+        "source": "release-readiness 0.3.0: count of the checks above; examples/acme/inputs/release.json",
+        "window": {
+          "from": "2026-09-05",
+          "to": "2026-09-05"
+        },
+        "as_of": "2026-09-05"
+      },
+      "waived": {
+        "value": 1,
+        "unit": "checks on hold under a waiver",
+        "source": "release-readiness 0.3.0: count of the checks above; examples/acme/inputs/release.json",
+        "window": {
+          "from": "2026-09-05",
+          "to": "2026-09-05"
+        },
+        "as_of": "2026-09-05"
+      },
+      "hold": {
+        "value": 0,
+        "unit": "checks on hold",
+        "source": "release-readiness 0.3.0: count of the checks above; examples/acme/inputs/release.json",
+        "window": {
+          "from": "2026-09-05",
+          "to": "2026-09-05"
+        },
+        "as_of": "2026-09-05"
+      },
+      "total": {
+        "value": 7,
+        "unit": "checks",
+        "source": "release-readiness 0.3.0: count of the checks above; examples/acme/inputs/release.json",
+        "window": {
+          "from": "2026-09-05",
+          "to": "2026-09-05"
+        },
+        "as_of": "2026-09-05"
+      }
+    },
+    "checks": [
+      {
+        "id": "ci",
+        "label": "CI passes on the release commit",
+        "readiness": "ready to ship",
+        "owner": "Quoting squad tech lead",
+        "reasons": [],
+        "figures": {
+          "required": {
+            "value": 5,
+            "unit": "checks",
+            "source": "examples/acme/inputs/ci.csv",
+            "window": {
+              "from": "2026-09-05",
+              "to": "2026-09-05"
+            },
+            "as_of": "2026-09-05"
+          },
+          "passed": {
+            "value": 5,
+            "unit": "checks",
+            "source": "examples/acme/inputs/ci.csv",
+            "window": {
+              "from": "2026-09-05",
+              "to": "2026-09-05"
+            },
+            "as_of": "2026-09-05"
+          }
+        }
+      },
+      {
+        "id": "bugs",
+        "label": "Open bugs within the severity limits",
+        "readiness": "hold",
+        "owner": "Quoting squad lead",
+        "reasons": [
+          "2 open major bugs against a limit of 1: #3101 (Quoting squad tech lead), #3104 (Quoting squad tech lead)."
+        ],
+        "figures": {
+          "open.blocker": {
+            "value": 0,
+            "unit": "bugs",
+            "source": "examples/acme/inputs/bugs.csv",
+            "window": {
+              "from": "2026-09-05",
+              "to": "2026-09-05"
+            },
+            "as_of": "2026-09-05"
+          },
+          "open.critical": {
+            "value": 0,
+            "unit": "bugs",
+            "source": "examples/acme/inputs/bugs.csv",
+            "window": {
+              "from": "2026-09-05",
+              "to": "2026-09-05"
+            },
+            "as_of": "2026-09-05"
+          },
+          "open.major": {
+            "value": 2,
+            "unit": "bugs",
+            "source": "examples/acme/inputs/bugs.csv",
+            "window": {
+              "from": "2026-09-05",
+              "to": "2026-09-05"
+            },
+            "as_of": "2026-09-05"
+          },
+          "open.minor": {
+            "value": 1,
+            "unit": "bugs",
+            "source": "examples/acme/inputs/bugs.csv",
+            "window": {
+              "from": "2026-09-05",
+              "to": "2026-09-05"
+            },
+            "as_of": "2026-09-05"
+          },
+          "open.trivial": {
+            "value": 0,
+            "unit": "bugs",
+            "source": "examples/acme/inputs/bugs.csv",
+            "window": {
+              "from": "2026-09-05",
+              "to": "2026-09-05"
+            },
+            "as_of": "2026-09-05"
+          },
+          "open.untriaged": {
+            "value": 0,
+            "unit": "bugs",
+            "source": "examples/acme/inputs/bugs.csv",
+            "window": {
+              "from": "2026-09-05",
+              "to": "2026-09-05"
+            },
+            "as_of": "2026-09-05"
+          }
+        },
+        "waiver": {
+          "approved_by": "Head of Product, Quoting squad",
+          "reason": "Both open major bugs change the draft's wording only. Prices come from the price book in fixed code. Fixes ship in v1.0.1.",
+          "expires": "2026-09-19"
+        }
+      },
+      {
+        "id": "flags",
+        "label": "Every change behind a flag with an off switch",
+        "readiness": "ready to ship",
+        "owner": "Quoting squad tech lead",
+        "reasons": [],
+        "figures": {
+          "total": {
+            "value": 1,
+            "unit": "flags",
+            "source": "examples/acme/inputs/flags.csv",
+            "window": {
+              "from": "2026-09-05",
+              "to": "2026-09-05"
+            },
+            "as_of": "2026-09-05"
+          },
+          "off_switch": {
+            "value": 1,
+            "unit": "flags",
+            "source": "examples/acme/inputs/flags.csv",
+            "window": {
+              "from": "2026-09-05",
+              "to": "2026-09-05"
+            },
+            "as_of": "2026-09-05"
+          },
+          "top_rollout": {
+            "value": 10,
+            "unit": "%",
+            "source": "examples/acme/inputs/flags.csv",
+            "window": {
+              "from": "2026-09-05",
+              "to": "2026-09-05"
+            },
+            "as_of": "2026-09-05"
+          }
+        }
+      },
+      {
+        "id": "rollback",
+        "label": "Rollback written, owned, rehearsed, with a trigger threshold",
+        "readiness": "ready to ship",
+        "owner": "Platform on-call lead",
+        "reasons": [],
+        "figures": {
+          "test_age_days": {
+            "value": 8,
+            "unit": "days",
+            "source": "examples/acme/inputs/release.json",
+            "window": {
+              "from": "2026-08-28",
+              "to": "2026-09-05"
+            },
+            "as_of": "2026-09-05"
+          }
+        }
+      },
+      {
+        "id": "brief",
+        "label": "Landing brief complete, and its date still ahead",
+        "readiness": "ready to ship",
+        "owner": "Head of Product, Quoting squad",
+        "reasons": [],
+        "figures": {
+          "days_to_date": {
+            "value": 71,
+            "unit": "days",
+            "source": "examples/acme/briefs/quote-drafting.md",
+            "window": {
+              "from": "2026-09-05",
+              "to": "2026-11-15"
+            },
+            "as_of": "2026-09-05"
+          }
+        }
+      },
+      {
+        "id": "evals",
+        "label": "Eval gate passes on the release commit",
+        "readiness": "ready to ship",
+        "owner": "Quoting squad ML engineer",
+        "reasons": [],
+        "figures": {
+          "1.cases": {
+            "value": 200,
+            "unit": "cases",
+            "source": "examples/acme/inputs/evals.csv",
+            "window": {
+              "from": "2026-09-04",
+              "to": "2026-09-04"
+            },
+            "as_of": "2026-09-05"
+          },
+          "1.passed": {
+            "value": 186,
+            "unit": "cases",
+            "source": "examples/acme/inputs/evals.csv",
+            "window": {
+              "from": "2026-09-04",
+              "to": "2026-09-04"
+            },
+            "as_of": "2026-09-05"
+          },
+          "1.needed": {
+            "value": 180,
+            "unit": "cases",
+            "source": "examples/acme/inputs/evals.csv",
+            "window": {
+              "from": "2026-09-04",
+              "to": "2026-09-04"
+            },
+            "as_of": "2026-09-05"
+          },
+          "2.cases": {
+            "value": 150,
+            "unit": "cases",
+            "source": "examples/acme/inputs/evals.csv",
+            "window": {
+              "from": "2026-09-04",
+              "to": "2026-09-04"
+            },
+            "as_of": "2026-09-05"
+          },
+          "2.passed": {
+            "value": 150,
+            "unit": "cases",
+            "source": "examples/acme/inputs/evals.csv",
+            "window": {
+              "from": "2026-09-04",
+              "to": "2026-09-04"
+            },
+            "as_of": "2026-09-05"
+          },
+          "2.needed": {
+            "value": 150,
+            "unit": "cases",
+            "source": "examples/acme/inputs/evals.csv",
+            "window": {
+              "from": "2026-09-04",
+              "to": "2026-09-04"
+            },
+            "as_of": "2026-09-05"
+          },
+          "total": {
+            "value": 2,
+            "unit": "evals",
+            "source": "examples/acme/inputs/evals.csv",
+            "window": {
+              "from": "2026-09-05",
+              "to": "2026-09-05"
+            },
+            "as_of": "2026-09-05"
+          },
+          "passing": {
+            "value": 2,
+            "unit": "evals",
+            "source": "examples/acme/inputs/evals.csv",
+            "window": {
+              "from": "2026-09-05",
+              "to": "2026-09-05"
+            },
+            "as_of": "2026-09-05"
+          }
+        }
+      },
+      {
+        "id": "spec",
+        "label": "Spec holds from spec-auditor are closed",
+        "readiness": "ready to ship",
+        "owner": "Quoting squad lead",
+        "reasons": [],
+        "figures": {
+          "holds": {
+            "value": 2,
+            "unit": "findings",
+            "source": "examples/acme/landing/quote-drafting.json, spec key (spec-auditor 0.3.0, 2026-08-03)",
+            "window": {
+              "from": "2026-08-03",
+              "to": "2026-09-05"
+            },
+            "as_of": "2026-09-05"
+          },
+          "closed": {
+            "value": 2,
+            "unit": "findings",
+            "source": "examples/acme/landing/quote-drafting.json, spec key (spec-auditor 0.3.0, 2026-08-03)",
+            "window": {
+              "from": "2026-08-03",
+              "to": "2026-09-05"
+            },
+            "as_of": "2026-09-05"
+          }
+        }
+      }
+    ],
+    "spec_holds": [
+      {
+        "finding": "rollback",
+        "message": "The rollback plan has no trigger threshold.",
+        "closed_by": "rollback",
+        "closed": true
+      },
+      {
+        "finding": "eval-plan",
+        "message": "The eval plan has no time it runs.",
+        "closed_by": "evals",
+        "closed": true
+      }
+    ],
+    "decides": "Head of Product, Quoting squad",
+    "next_step": "Ship, and close each waived check before its waiver runs out (the first on 2026-09-19). After launch, did-it-land reads quote draft acceptance rate against the 40% bar set for 2026-11-15.",
+    "illustrative": true
+  }
+}

@@ -1,7 +1,7 @@
 [project]
 name = "release-readiness"
-version = "0.1.0"
-description = "A skill that makes a go or no-go call for a software release from CI, bugs, flags, rollback and evals."
+version = "0.3.0"
+description = "A Claude skill that says whether one release is ready to ship or must hold, step 03 of the Landing Loop."
 requires-python = ">=3.11"
 # Standard library only, on purpose: the scripts run inside sandboxes that cannot install packages.
 dependencies = []
@@ -9,6 +9,8 @@ dependencies = []
 [tool.ruff]
 line-length = 160
 target-version = "py311"
+# Copied byte for byte from the Leader Report at a pinned commit (VENDORED.json); linted there, never edited here.
+extend-exclude = ["skills/release-readiness/assets/vendor"]
 
 [tool.ruff.lint]
 # E, F: errors and unused names. I: import order. B: likely bugs. UP: old syntax.
@@ -18,5 +20,13 @@ select = ["E", "F", "I", "B", "UP", "SIM", "S"]
 [tool.ruff.lint.isort]
 # evals/helpers.py puts the scripts folder on sys.path, so it must be imported before the scripts.
 known-local-folder = ["helpers"]
-known-first-party = ["readiness", "from_gh", "validate"]
+known-first-party = ["readiness", "from_gh", "validate", "loop", "landing_brief", "render_html"]
 section-order = ["future", "standard-library", "third-party", "local-folder", "first-party"]
+
+[tool.ruff.lint.per-file-ignores]
+# Vendored unchanged from the landing-brief skill, which targets Python 3.9.
+"skills/release-readiness/scripts/landing_brief.py" = ["UP", "E501", "S101"]
+# The page's CSS and markup read best one rule or row per line.
+"skills/release-readiness/scripts/render_html.py" = ["E501"]
+# Tests run this repo's own scripts with fixed arguments.
+"evals/**" = ["S603", "S101"]

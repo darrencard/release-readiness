@@ -1,0 +1,17 @@
+{
+  "repository": "https://github.com/darrencard/product-engineering-update",
+  "commit": "366da9bfede540ec19e9164ad5ad17ce28c1d06b",
+  "release": "v0.11.0 line, main at 2026-11-26",
+  "rule": "Copied unchanged. Never edit these files here; copy them again from the commit and update this file and its hashes.",
+  "files": {
+    "scripts/landing_brief.py": {
+      "from": "skills/landing-brief/scripts/landing_brief.py",
+      "sha256": "2d13573543c74ebe1bf001b97287287474a0ec298f34709a1bbfc643be051948"
+    },
+    "assets/vendor/template.html": {
+      "from": "skills/product-engineering-update/assets/template.html",
+      "sha256": "e5740431ab5269606709d352d3d253325df740830e8316f06478873e71d430d0"
+    }
+  },
+  "collectors": "None vendored. The Leader Report's collectors read pull requests, deployments, trackers and analytics; none reads check runs, commit statuses or bug severity labels at a commit. from_gh.py is this skill's own reader for those, through gh, with the CSV formats in references/inputs.md as the fallback."
+}
