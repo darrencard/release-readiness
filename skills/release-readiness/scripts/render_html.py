@@ -43,7 +43,8 @@ MIN_FONT_PX = 11  # no text on the page prints smaller, at any width
 
 # Layout for this page only. Everything else comes from the template's stylesheet and svgkit.CSS.
 # In the scorecard, a row with no picture gives its name the picture column too, so names stay on one line, and the
-# figure column prints in one case, numerals and capitals, as /update does.
+# figure column prints in one case, numerals and capitals, as /update does. The share that are ready prints once, in
+# the frame head with its bar (.sc-hb), not again as a row.
 PAGE_CSS = """
 main.solo{margin-left:0}
 .solo .slide{min-height:0}
@@ -95,6 +96,7 @@ main.solo{margin-left:0}
 .stack td{border:0;padding:3px 0;display:grid;grid-template-columns:96px 1fr;gap:12px}.stack td.num{text-align:left;white-space:normal}
 .stack td::before{content:attr(data-l);font:400 11px/20px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--t3)}}
 .scg .sc-l{text-transform:uppercase;letter-spacing:.06em}
+.scg .sc-hb{display:inline-block;width:120px}
 @container sc (min-width:800px){.scg .sc-r:has(>.sc-p:empty)>.sc-n{grid-column:1/3}.scg .sc-r:has(>.sc-p:empty)>.sc-p{display:none}}
 """
 
@@ -210,27 +212,21 @@ class Table:
 
 
 def scorecard(d: dict) -> str:
-    """The checks as scorecard rows: first the share that are ready, then one row per check in the order they run,
+    """The checks as scorecard rows: the share that are ready once, in the frame head with its bar, then one row per check in the order they run,
     each with its figure and its word (ready to ship muted, hold in ink). A waived check also carries the person who
     OK'd it, in brass, and the date the waiver runs out on its figure line, because a waiver is a person's call."""
     waived = {w["id"]: w for w in d["waived"]}
-    share = sk.sc_row(
-        "All checks",
-        picture=sk.share_bar(d["ready"], d["total"]),
-        figure=sk.figure_line(f"{d['ready']} of {d['total']} ready"),
-        word=sk.check_word(d["readiness"], ink=d["readiness"] == readiness.HOLD),
-    )
-    rows = [share]
+    rows = []
     for c in d["checks"]:
         hold = c["readiness"] == readiness.HOLD
         w = waived.get(c["id"])
         figure = sk.figure_line(short_figure(c), tail=f"until {w['expires']}" if w else "")
         word = sk.check_word(c["readiness"], ink=hold) + (sk.person_call(w["approved_by"]) if w else "")
         rows.append(sk.sc_row(readiness.SHORT.get(c["id"], c["id"]).capitalize(), figure=figure, word=word))
-    caption = "The first row shows the share of checks that are ready to ship. Then one row per check, in the order they run."
+    caption = "The head shows the share of checks that are ready to ship. Then one row per check, in the order they run."
     if d["waived"]:
         caption += " A waived check names the person who OK'd it and the date the waiver runs out."
-    return sk.sc_frame(rows, label=readiness.verdict(d), title="Checks", legend=f"<span>{d['ready']} of {d['total']} ready</span>", head=["Check", "", "Found", "Result"], caption=caption, illustrative=d["illustrative"])
+    return sk.sc_frame(rows, label=readiness.verdict(d), title="Checks", legend=f'<span>{d["ready"]} of {d["total"]} ready</span><span class="sc-hb">{sk.share_bar(d["ready"], d["total"])}</span>', head=["Check", "", "Found", "Result"], caption=caption, illustrative=d["illustrative"])
 
 
 # The words

@@ -146,7 +146,7 @@ class Sample(unittest.TestCase):
         page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
         self.assertEqual(svgkit.unprinted(page), [])
         frame = svgkit.frames_in(page)[0]
-        self.assertEqual(len(re.findall(r'<svg class="sc-', frame)), 1, "one share bar; the check rows have no picture")
+        self.assertEqual(len(re.findall(r'<svg class="sc-', frame)), 1, "one share bar, in the head; the check rows have no picture")
 
     def test_the_scorecard_is_one_frame_with_the_share_first_and_one_row_per_check(self) -> None:
         page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
@@ -154,11 +154,9 @@ class Sample(unittest.TestCase):
         self.assertEqual(len(frames), 1, "one frame per visual")
         frame = frames[0]
         r = self.record["release"]
-        self.assertEqual(frame.count('<div class="sc-r">'), len(r["checks"]) + 1)
-        self.assertIn('<span class="sc-n">All checks</span><span class="sc-p"><svg class="sc-sh"', frame)
-        self.assertIn('<span class="sc-l"><b>6 of 7 ready</b></span>', frame)
+        self.assertEqual(frame.count('<div class="sc-r">'), len(r["checks"]))
         names = re.findall(r'<span class="sc-n">([^<]*)</span>', frame)
-        self.assertEqual(names, ["All checks", "Code checks", "Open bugs", "Off switch", "Undo plan", "Brief", "Quality tests", "Build plan"])
+        self.assertEqual(names, ["Code checks", "Open bugs", "Off switch", "Undo plan", "Brief", "Quality tests", "Build plan"])
         self.assertIn('<span class="sc-l"><b>2 major open</b> · until 2026-09-19</span>', frame, "the waiver's expiry on its figure line")
         self.assertIn('<span class="sc-l"><b>5 of 5 pass</b></span>', frame)
         words = re.findall(r'<span class="(sc-w(?: ink)?)">([^<]*)</span>', frame)
@@ -168,10 +166,13 @@ class Sample(unittest.TestCase):
         waived = re.search(r'<span class="sc-n">Open bugs</span>.*?</div>', frame).group(0)
         self.assertIn('<span class="sc-w ink">hold</span><span class="sc-o">', waived)
 
-    def test_the_share_prints_in_the_frame_head_and_stays_the_first_row(self) -> None:
+    def test_the_share_prints_once_in_the_frame_head_with_its_bar(self) -> None:
         frame = svgkit.frames_in((SAMPLE / "release-readiness.html").read_text(encoding="utf-8"))[0]
-        self.assertIn("<span>Checks</span><span>6 of 7 ready</span>", frame.split('<div class="sc-b">', 1)[0])
-        self.assertIn('<span class="sc-n">All checks</span><span class="sc-p"><svg class="sc-sh"', frame.split('<div class="sc-r">')[1])
+        head, body = frame.split('<div class="sc-b">', 1)
+        self.assertIn('<span>Checks</span><span>6 of 7 ready</span><span class="sc-hb"><svg class="sc-sh"', head)
+        self.assertEqual(svgkit.page_text(frame).upper().count("6 OF 7 READY"), 1, "the share prints once")
+        self.assertNotIn("All checks", frame)
+        self.assertNotIn('class="sc-sh"', body)
 
     def test_a_row_without_a_picture_gives_its_name_the_picture_column(self) -> None:
         css = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8").split("<style>", 1)[1].split("</style>", 1)[0]
@@ -226,8 +227,8 @@ class Sample(unittest.TestCase):
         )
         frame = render_html.scorecard(held)
         self.assertEqual(re.search(r'aria-label="([^"]+)"', frame).group(1), readiness.verdict(held))
-        self.assertIn('<span class="sc-l"><b>3 of 6 ready</b></span>', frame)
-        self.assertEqual(frame.count('<span class="sc-w ink">hold</span>'), 4, "the call, then one ink hold per held check")
+        self.assertIn('<span>Checks</span><span>3 of 6 ready</span><span class="sc-hb">', frame)
+        self.assertEqual(frame.count('<span class="sc-w ink">hold</span>'), 3, "one ink hold per held check; the call is the aria-label and the heading")
 
     def test_no_text_smaller_than_11px(self) -> None:
         page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
