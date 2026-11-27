@@ -176,7 +176,9 @@ class Sample(unittest.TestCase):
 
     def test_a_row_without_a_picture_gives_its_name_the_picture_column(self) -> None:
         css = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8").split("<style>", 1)[1].split("</style>", 1)[0]
-        self.assertIn("@container sc (min-width:800px){.scg .sc-r:has(>.sc-p:empty)>.sc-n{grid-column:1/3}.scg .sc-r:has(>.sc-p:empty)>.sc-p{display:none}}", css)
+        self.assertIn(
+            "@container sc (min-width:800px){.scg .sc-r:has(>.sc-p:empty)>.sc-n{grid-column:1/3}.scg .sc-r:has(>.sc-p:empty)>.sc-p{display:none}}", css
+        )
 
     def test_the_figure_column_prints_in_one_case(self) -> None:
         css = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8").split("<style>", 1)[1].split("</style>", 1)[0]

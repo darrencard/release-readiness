@@ -229,7 +229,15 @@ def scorecard(d: dict) -> str:
     caption = "The head shows the share of checks that are ready to ship. Then one row per check, in the order they run."
     if d["waived"]:
         caption += " A waived check names the person who OK'd it and the date the waiver runs out."
-    return sk.sc_frame(rows, label=readiness.verdict(d), title="Checks", legend=f'<span>{d["ready"]} of {d["total"]} ready</span><span class="sc-hb">{sk.share_bar(d["ready"], d["total"])}</span>', head=["Check", "", "Found", "Result"], caption=caption, illustrative=d["illustrative"])
+    return sk.sc_frame(
+        rows,
+        label=readiness.verdict(d),
+        title="Checks",
+        legend=f'<span>{d["ready"]} of {d["total"]} ready</span><span class="sc-hb">{sk.share_bar(d["ready"], d["total"])}</span>',
+        head=["Check", "", "Found", "Result"],
+        caption=caption,
+        illustrative=d["illustrative"],
+    )
 
 
 # The words
