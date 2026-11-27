@@ -45,7 +45,7 @@ Ship it, then fix what the waiver covers (open bugs) before it runs out on 2026-
 
 ## For your engineers
 
-- Skill: release-readiness 0.3.3.
+- Skill: release-readiness 0.3.4.
 - Commit 5e1c0a9d3b72f4e8.
 - Check ids: ci, bugs, flags, rollback, brief, evals, spec.
 - Writes the `release` key of `landing/quote-drafting.json` and no other key.
@@ -87,4 +87,4 @@ Spec holds as stored: rollback closed by rollback; eval-plan closed by evals.
 | spec.holds | Holds spec-auditor raised | 2 findings | 2026-08-03 to 2026-09-05 | examples/acme/landing/quote-drafting.json, spec key (spec-auditor 0.3.4, 2026-08-03) |
 | spec.closed | Spec holds closed by a ready check | 2 findings | 2026-08-03 to 2026-09-05 | examples/acme/landing/quote-drafting.json, spec key (spec-auditor 0.3.4, 2026-08-03) |
 
-Computed by release-readiness 0.3.3. Every figure comes from the source named beside it.
+Computed by release-readiness 0.3.4. Every figure comes from the source named beside it.

@@ -39,7 +39,7 @@ import svgkit as sk  # noqa: E402  (vendored, unchanged; see VENDORED.json)
 TEMPLATE = Path(__file__).resolve().parent.parent / "assets" / "vendor" / "template.html"
 STYLE = re.compile(r"<style>(.*?)</style>", re.S)
 NAME = "Release readiness"  # the page prints its plain name; the code name sits in the engineers' fold
-MIN_FONT_PX = 11  # no text on the page prints smaller, at any width
+MIN_FONT_PX = 12  # no text on the page prints smaller, at any width
 
 # Layout for this page only. Everything else comes from the template's stylesheet and svgkit.CSS.
 # In the scorecard, a row with no picture gives its name the picture column too, so names stay on one line, and the
@@ -116,6 +116,15 @@ def floor_fonts(css: str) -> str:
         return re.sub(r"(?<![/\d.])(\d+(?:\.\d+)?)px", lambda m: f"{MIN_FONT_PX}px" if float(m.group(1)) < MIN_FONT_PX else m.group(0), decl.group(0))
 
     return re.sub(r"font(?:-size)?:[^;}]*", raise_px, css)
+
+
+ISO_DATE = re.compile(r"(?<![\w-])\d{4}-\d{2}-\d{2}(?:[ T]\d{2}:\d{2}(?::\d{2})?Z?)?(?![\w-])")
+
+
+def keep_dates(page: str) -> str:
+    """Every ISO date in the page's text held on one line, so a heading never breaks one at a hyphen at any width."""
+    head, sep, body = page.partition("<body>")
+    return head + sep + re.sub(r">([^<]+)<", lambda m: ">" + ISO_DATE.sub(r'<span class="nw">\g<0></span>', m.group(1)) + "<", body)
 
 
 def stylesheet() -> str:
@@ -343,7 +352,7 @@ def page(d: dict) -> str:
     )
     more = f'<section class="slide"><div class="meta"><span>Detail</span></div>{engineers(d)}</section>'
     title = f"Release readiness: {d['release']}"
-    return (
+    return keep_dates(
         '<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
         f'<title>{e(title)}</title><style>{floor_fonts(stylesheet() + sk.CSS + sk.SCORECARD_CSS + PAGE_CSS)}</style></head><body><main class="solo">{cover}{detail}{more}'
         '<p class="foot">A release check says whether this version is ready to ship, not whether the project will work. '

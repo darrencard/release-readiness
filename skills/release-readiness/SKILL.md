@@ -4,7 +4,7 @@ description: Says whether one software release is ready to ship or must hold, fr
 license: MIT. See LICENSE in the repository root.
 metadata:
   author: Dacard
-  version: "0.3.3"
+  version: "0.3.4"
 ---
 
 # Release readiness
@@ -13,7 +13,7 @@ Says one thing about one release: **ready to ship** or **hold**. A release is re
 
 These are this check's own words. A project's status (landed, watch or stalled) belongs to did-it-land, which reads the metric after launch. Never use those words for a release, and never colour ready to ship or hold as a status.
 
-In what you write, say project, target, landing brief (a one-page plan: what good looks like, by when, at what cost) and project file. If the user calls a project a bet, use their word. Keep keys, file names, flags and code identifiers as they are (`--bet`, `landing/<bet>.json`).
+In what you write, say project, target, landing brief (a one-page plan: what good looks like, by when, at what cost) and project file. Use the user's word, project or bet; the record key stays `bet`. Keep keys, file names, flags and code identifiers as they are (`--bet`, `landing/<bet>.json`).
 
 Not for: scoring a roadmap, judging whether a past release worked, or a sprint review.
 

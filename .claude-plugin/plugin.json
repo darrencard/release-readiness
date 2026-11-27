@@ -1,6 +1,6 @@
 {
   "name": "release-readiness",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Says whether one release is ready to ship or must hold, from CI, open bugs by severity, feature flags, the rollback plan and an eval gate for a model call. All-or-nothing: every held check is named with its owner, every figure is computed in code with its source, and a waiver is a named person's call. Step 03 of the Landing Loop: reads the landing brief and spec-auditor's spec key, writes only the release key of landing/<bet>.json, and renders one HTML page for leaders.",
   "author": {
     "name": "Dacard"

@@ -139,7 +139,7 @@ class Sample(unittest.TestCase):
         at = [body.index(x) for x in order]
         self.assertEqual(at, sorted(at))
         self.assertEqual(body.count('<div class="next">'), 1)
-        self.assertIn('<span class="o">Head of Product, Quoting squad</span><span class="d">2026-09-19</span>', body)
+        self.assertIn('<span class="o">Head of Product, Quoting squad</span><span class="d"><span class="nw">2026-09-19</span></span>', body)
         self.assertIn("<details><summary>For your engineers</summary>", body)
 
     def test_the_visual_draws_only_figures_the_page_prints(self) -> None:
@@ -157,7 +157,9 @@ class Sample(unittest.TestCase):
         self.assertEqual(frame.count('<div class="sc-r">'), len(r["checks"]))
         names = re.findall(r'<span class="sc-n">([^<]*)</span>', frame)
         self.assertEqual(names, ["Code checks", "Open bugs", "Off switch", "Undo plan", "Brief", "Quality tests", "Build plan"])
-        self.assertIn('<span class="sc-l"><b>2 major open</b> · until 2026-09-19</span>', frame, "the waiver's expiry on its figure line")
+        self.assertIn(
+            '<span class="sc-l"><b>2 major open</b> · until <span class="nw">2026-09-19</span></span>', frame, "the waiver's expiry on its figure line"
+        )
         self.assertIn('<span class="sc-l"><b>5 of 5 pass</b></span>', frame)
         words = re.findall(r'<span class="(sc-w(?: ink)?)">([^<]*)</span>', frame)
         self.assertEqual(sorted({w for _, w in words}), ["hold", "ready to ship"])
@@ -232,14 +234,14 @@ class Sample(unittest.TestCase):
         self.assertIn('<span>Checks</span><span>3 of 6 ready</span><span class="sc-hb">', frame)
         self.assertEqual(frame.count('<span class="sc-w ink">hold</span>'), 3, "one ink hold per held check; the call is the aria-label and the heading")
 
-    def test_no_text_smaller_than_11px(self) -> None:
+    def test_no_text_smaller_than_12px(self) -> None:
         page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
         css = "".join(re.findall(r"<style>(.*?)</style>", page, re.S))
         decls = re.findall(r"font(?:-size)?:[^;}]*", css)
         self.assertTrue(decls)
         sizes = [float(n) for d in decls for n in re.findall(r"(?<![/\d.])(\d+(?:\.\d+)?)px", d)]
-        self.assertGreaterEqual(min(sizes), 11, "a font size below 11px")
-        self.assertNotRegex(page, r'font-size="(\d|10)(\.\d+)?"', "an SVG label below 11px")
+        self.assertGreaterEqual(min(sizes), 12, "a font size below 12px")
+        self.assertNotRegex(page, r'font-size="(\d|1[01])(\.\d+)?"', "an SVG label below 12px")
         template = render_html.TEMPLATE.read_text(encoding="utf-8")
         self.assertIn("font:400 10px/16px var(--mono)", template, "the template stays as vendored; the page raises its sizes")
 

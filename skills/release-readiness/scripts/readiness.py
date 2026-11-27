@@ -46,7 +46,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import landing_brief  # noqa: E402  (vendored byte-identical; see VENDORED.json)
 import loop  # noqa: E402
 
-VERSION = "0.3.3"
+VERSION = "0.3.4"
 TOOL = f"release-readiness {VERSION}"
 READY = "ready to ship"
 HOLD = "hold"

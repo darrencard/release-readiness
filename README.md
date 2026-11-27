@@ -6,6 +6,8 @@ Install the release-readiness skill from https://github.com/darrencard/release-r
 
 A free Claude skill that says whether one release is **ready to ship** or must **hold**, check by check, and names who owns each hold.
 
+A bet is a project you expect to move a number; its bar is the target its landing brief sets.
+
 **Why it matters:** one open check is enough to hold a release, however good the rest looks. Code computes every figure from your CI, bugs, flags, rollback plan, evals and landing brief (a one-page plan: what good looks like, by when, at what cost). A waiver is a person's call, named, with a reason and an end date, and it never turns a hold into ready.
 
 ## Try it on Acme
@@ -68,13 +70,13 @@ It reads no key that comes after `release` in the project file. The words are th
 ```json
 {
   "release": {
-    "tool": "release-readiness 0.3.3",
+    "tool": "release-readiness 0.3.4",
     "as_of": "2026-09-05",
     "release": "Acme quote drafting v1.0",
     "commit": "5e1c0a9d3b72f4e8",
     "readiness": "ready to ship",
     "counts": {
-      "ready": {"value": 6, "unit": "checks ready to ship", "source": "release-readiness 0.3.3: count of the checks above; examples/acme/inputs/release.json",
+      "ready": {"value": 6, "unit": "checks ready to ship", "source": "release-readiness 0.3.4: count of the checks above; examples/acme/inputs/release.json",
                 "window": {"from": "2026-09-05", "to": "2026-09-05"}, "as_of": "2026-09-05"}
     },
     "checks": [
