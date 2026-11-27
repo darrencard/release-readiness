@@ -15,12 +15,12 @@ The bet's landing brief, in the Linear project template, passed as `--brief brie
 ```json
 {
   "name": "Acme quote drafting v1.0",
-  "owner": "Quoting squad lead",
+  "owner": "Lead, Quoting squad",
   "as_of": "2026-09-05",
   "commit": "5e1c0a9d3b72f4e8",
   "illustrative": false,
   "ai_feature": false,
-  "owners": {"ci": "Quoting squad tech lead", "bugs": "Quoting squad lead", "rollback": "Platform on-call lead", "evals": "Quoting squad ML engineer"},
+  "owners": {"ci": "Tech lead, Quoting squad", "bugs": "Lead, Quoting squad", "rollback": "Platform on-call lead", "evals": "Quoting squad ML engineer"},
   "rollback": {"plan": "Turn off quote_drafting. Quotes fall back to the manual form.", "owner": "Platform on-call lead",
                "tested_on": "2026-08-28", "trigger": "Draft acceptance below 15% for a day"},
   "waivers": [{"check": "bugs", "reason": "Both open major bugs change the draft's wording only.",

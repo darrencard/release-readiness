@@ -21,9 +21,9 @@ It rebuilds [examples/acme/release-readiness.html](examples/acme/release-readine
 ```text
 Ready to ship, with 1 waiver. 6 of 7 checks are ready to ship; 1 check holds under a waiver.
 
-| Open bugs within the severity limits | hold, waived | Quoting squad lead |
+| Open bugs within the severity limits | hold, waived | Lead, Quoting squad |
   2 open major bugs against a limit of 1. Approved by Head of Product, Quoting squad, until 2026-09-19.
-| Spec holds from spec-auditor are closed | ready to ship | Quoting squad lead |
+| Spec holds from spec-auditor are closed | ready to ship | Lead, Quoting squad |
   rollback closed by the rollback check; eval-plan closed by the evals check.
 ```
 
@@ -78,8 +78,8 @@ It reads no key later in the record order. The words are this check's own: **rea
                 "window": {"from": "2026-09-05", "to": "2026-09-05"}, "as_of": "2026-09-05"}
     },
     "checks": [
-      {"id": "bugs", "readiness": "hold", "owner": "Quoting squad lead",
-       "reasons": ["2 open major bugs against a limit of 1: #3101 (Quoting squad tech lead), #3104 (Quoting squad tech lead)."],
+      {"id": "bugs", "readiness": "hold", "owner": "Lead, Quoting squad",
+       "reasons": ["2 open major bugs against a limit of 1: #3101 (Tech lead, Quoting squad), #3104 (Tech lead, Quoting squad)."],
        "figures": {"open.major": {"value": 2, "unit": "bugs", "source": "examples/acme/inputs/bugs.csv",
                                   "window": {"from": "2026-09-05", "to": "2026-09-05"}, "as_of": "2026-09-05"}},
        "waiver": {"approved_by": "Head of Product, Quoting squad", "reason": "Both open major bugs change the draft's wording only.", "expires": "2026-09-19"}}

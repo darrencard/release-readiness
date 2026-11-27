@@ -1,7 +1,7 @@
 check,conclusion,required,commit,url,owner
-unit-tests,success,yes,5e1c0a9d3b72f4e8,,Quoting squad tech lead
-integration-tests,success,yes,5e1c0a9d3b72f4e8,,Quoting squad tech lead
-price-book-contract,success,yes,5e1c0a9d3b72f4e8,,Quoting squad tech lead
-lint,success,yes,5e1c0a9d3b72f4e8,,Quoting squad tech lead
+unit-tests,success,yes,5e1c0a9d3b72f4e8,,"Tech lead, Quoting squad"
+integration-tests,success,yes,5e1c0a9d3b72f4e8,,"Tech lead, Quoting squad"
+price-book-contract,success,yes,5e1c0a9d3b72f4e8,,"Tech lead, Quoting squad"
+lint,success,yes,5e1c0a9d3b72f4e8,,"Tech lead, Quoting squad"
 security-scan,success,yes,5e1c0a9d3b72f4e8,,Platform on-call lead
-visual-diff,failure,no,5e1c0a9d3b72f4e8,,Quoting squad tech lead
+visual-diff,failure,no,5e1c0a9d3b72f4e8,,"Tech lead, Quoting squad"

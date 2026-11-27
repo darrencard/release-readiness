@@ -1,14 +1,14 @@
 {
   "name": "Acme Quote Assistant 2.4",
   "illustrative": true,
-  "owner": "Quoting squad lead",
+  "owner": "Lead, Quoting squad",
   "as_of": "2026-11-20",
   "commit": "4f2a9c1e7b3d",
   "ai_feature": true,
   "owners": {
-    "ci": "Quoting squad tech lead",
-    "bugs": "Quoting squad lead",
-    "flags": "Quoting squad tech lead",
+    "ci": "Tech lead, Quoting squad",
+    "bugs": "Lead, Quoting squad",
+    "flags": "Tech lead, Quoting squad",
     "rollback": "Platform on-call lead",
     "evals": "Quoting squad ML engineer"
   },

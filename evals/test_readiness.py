@@ -189,12 +189,12 @@ class Bugs(Base):
 class Flags(Base):
     def test_a_flag_with_no_off_switch_blocks(self) -> None:
         fx = self.fixture("acme-ready")
-        self.write(fx / "flags.csv", "flag,rollout_percent,off_switch,owner\nquote_v24,10,no,Quoting squad tech lead\n")
+        self.write(fx / "flags.csv", "flag,rollout_percent,off_switch,owner\nquote_v24,10,no,\"Tech lead, Quoting squad\"\n")
         self.assertEqual(self.open_ids(self.call(fx)), ["flags"])
 
     def test_a_flag_above_the_rollout_limit_blocks(self) -> None:
         fx = self.fixture("acme-ready")
-        self.write(fx / "flags.csv", "flag,rollout_percent,off_switch,owner\nquote_v24,50,yes,Quoting squad tech lead\n")
+        self.write(fx / "flags.csv", "flag,rollout_percent,off_switch,owner\nquote_v24,50,yes,\"Tech lead, Quoting squad\"\n")
         d = self.call(fx)
         self.assertIn("starts at 50%, above the 25% limit", d["holds"][0]["reasons"][0])
 

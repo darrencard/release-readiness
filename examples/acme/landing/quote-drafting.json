@@ -156,7 +156,7 @@
         "id": "ci",
         "label": "CI passes on the release commit",
         "readiness": "ready to ship",
-        "owner": "Quoting squad tech lead",
+        "owner": "Tech lead, Quoting squad",
         "reasons": [],
         "figures": {
           "required": {
@@ -185,9 +185,9 @@
         "id": "bugs",
         "label": "Open bugs within the severity limits",
         "readiness": "hold",
-        "owner": "Quoting squad lead",
+        "owner": "Lead, Quoting squad",
         "reasons": [
-          "2 open major bugs against a limit of 1: #3101 (Quoting squad tech lead), #3104 (Quoting squad tech lead)."
+          "2 open major bugs against a limit of 1: #3101 (Tech lead, Quoting squad), #3104 (Tech lead, Quoting squad)."
         ],
         "figures": {
           "open.blocker": {
@@ -261,7 +261,7 @@
         "id": "flags",
         "label": "Every change behind a flag with an off switch",
         "readiness": "ready to ship",
-        "owner": "Quoting squad tech lead",
+        "owner": "Tech lead, Quoting squad",
         "reasons": [],
         "figures": {
           "total": {
@@ -427,7 +427,7 @@
         "id": "spec",
         "label": "Spec holds from spec-auditor are closed",
         "readiness": "ready to ship",
-        "owner": "Quoting squad lead",
+        "owner": "Lead, Quoting squad",
         "reasons": [],
         "figures": {
           "holds": {

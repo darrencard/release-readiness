@@ -1,17 +1,17 @@
 {
   "name": "Acme quote drafting v1.0",
   "illustrative": true,
-  "owner": "Quoting squad lead",
+  "owner": "Lead, Quoting squad",
   "as_of": "2026-09-05",
   "commit": "5e1c0a9d3b72f4e8",
   "owners": {
-    "ci": "Quoting squad tech lead",
-    "bugs": "Quoting squad lead",
-    "flags": "Quoting squad tech lead",
+    "ci": "Tech lead, Quoting squad",
+    "bugs": "Lead, Quoting squad",
+    "flags": "Tech lead, Quoting squad",
     "rollback": "Platform on-call lead",
     "brief": "Head of Product, Quoting squad",
     "evals": "Quoting squad ML engineer",
-    "spec": "Quoting squad lead"
+    "spec": "Lead, Quoting squad"
   },
   "rollback": {
     "plan": "Turn off quote_drafting. Quotes fall back to the manual form; no data to migrate.",

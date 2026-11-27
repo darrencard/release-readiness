@@ -69,7 +69,7 @@ class Waivers(Base):
 
     def test_a_waiver_that_does_not_count_says_why(self) -> None:
         cases = {
-            "cannot waive it": {**WAIVER, "approved_by": "Quoting squad lead"},
+            "cannot waive it": {**WAIVER, "approved_by": "Lead, Quoting squad"},
             "ran out on": {**WAIVER, "expires": "2026-11-19"},
             "beyond the 14-day limit": {**WAIVER, "expires": "2027-01-31"},
             "needs a reason": {**WAIVER, "reason": ""},

@@ -1,6 +1,6 @@
 check,conclusion,required,commit,url,owner
-unit-tests,success,yes,4f2a9c1e7b3d,,Quoting squad tech lead
-integration-tests,success,yes,4f2a9c1e7b3d,,Quoting squad tech lead
-lint,success,yes,4f2a9c1e7b3d,,Quoting squad tech lead
+unit-tests,success,yes,4f2a9c1e7b3d,,"Tech lead, Quoting squad"
+integration-tests,success,yes,4f2a9c1e7b3d,,"Tech lead, Quoting squad"
+lint,success,yes,4f2a9c1e7b3d,,"Tech lead, Quoting squad"
 security-scan,success,yes,4f2a9c1e7b3d,,Security lead
-visual-diff,failure,no,4f2a9c1e7b3d,,Quoting squad tech lead
+visual-diff,failure,no,4f2a9c1e7b3d,,"Tech lead, Quoting squad"

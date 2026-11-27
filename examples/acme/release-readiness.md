@@ -2,7 +2,7 @@
 
 *Illustrative: sample data, not a real release.*
 
-Checked 2026-09-05. Commit 5e1c0a9d3b72f4e8. Release owner: Quoting squad lead. Bet: quote-drafting.
+Checked 2026-09-05. Commit 5e1c0a9d3b72f4e8. Release owner: Lead, Quoting squad. Bet: quote-drafting.
 
 **Ready to ship, with 1 waiver.** 6 of 7 checks are ready to ship; 1 check holds under a waiver.
 
@@ -10,19 +10,19 @@ Checked 2026-09-05. Commit 5e1c0a9d3b72f4e8. Release owner: Quoting squad lead. 
 
 | Check | Owner | Approved by | Expires | Reason | Holds because |
 |---|---|---|---|---|---|
-| Open bugs within the severity limits | Quoting squad lead | Head of Product, Quoting squad | 2026-09-19 | Both open major bugs change the draft's wording only. Prices come from the price book in fixed code. Fixes ship in v1.0.1. | 2 open major bugs against a limit of 1: #3101 (Quoting squad tech lead), #3104 (Quoting squad tech lead). |
+| Open bugs within the severity limits | Lead, Quoting squad | Head of Product, Quoting squad | 2026-09-19 | Both open major bugs change the draft's wording only. Prices come from the price book in fixed code. Fixes ship in v1.0.1. | 2 open major bugs against a limit of 1: #3101 (Tech lead, Quoting squad), #3104 (Tech lead, Quoting squad). |
 
 ## Every check
 
 | Check | Check word | Owner |
 |---|---|---|
-| CI passes on the release commit | ready to ship | Quoting squad tech lead |
-| Open bugs within the severity limits | hold, waived | Quoting squad lead |
-| Every change behind a flag with an off switch | ready to ship | Quoting squad tech lead |
+| CI passes on the release commit | ready to ship | Tech lead, Quoting squad |
+| Open bugs within the severity limits | hold, waived | Lead, Quoting squad |
+| Every change behind a flag with an off switch | ready to ship | Tech lead, Quoting squad |
 | Rollback written, owned, rehearsed, with a trigger threshold | ready to ship | Platform on-call lead |
 | Landing brief complete, and its date still ahead | ready to ship | Head of Product, Quoting squad |
 | Eval gate passes on the release commit | ready to ship | Quoting squad ML engineer |
-| Spec holds from spec-auditor are closed | ready to ship | Quoting squad lead |
+| Spec holds from spec-auditor are closed | ready to ship | Lead, Quoting squad |
 
 ## Spec holds from 02 Spec
 
