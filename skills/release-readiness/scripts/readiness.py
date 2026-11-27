@@ -46,7 +46,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import landing_brief  # noqa: E402  (vendored byte-identical; see VENDORED.json)
 import loop  # noqa: E402
 
-VERSION = "0.3.0"
+VERSION = "0.3.1"
 TOOL = f"release-readiness {VERSION}"
 READY = "ready to ship"
 HOLD = "hold"
@@ -741,40 +741,188 @@ def headline(d: dict) -> str:
     return f"Hold. {d['ready']} of {d['total']} checks are ready to ship; {'1 check holds' if n == 1 else f'{n} checks hold'}."
 
 
+# ---------------------------------------------------------------- plain words
+#
+# Public copy, on the page and in the Markdown twin, uses plain words (the Landing Loop design spec, 2026-11-27).
+# The record keeps its own words: check labels, reasons and next_step are stored as computed above. File names,
+# flags and check ids print only under "For your engineers".
+
+PLAIN_LABELS = {
+    "ci": "Code checks pass on the version being released",
+    "bugs": "Open bugs within the severity limits",
+    "flags": "Every change can be switched off",
+    "rollback": "Undo plan written, owned and rehearsed, with a point to undo at",
+    "brief": "Landing brief complete, and its date still ahead",
+    "evals": "Quality tests pass on the version being released",
+    "spec": "Build plan holds from spec-auditor are closed",
+}
+SHORT = {"ci": "Code checks", "bugs": "Open bugs", "flags": "Off switch", "rollback": "Undo plan", "brief": "Brief", "evals": "Quality tests", "spec": "Build plan"}
+WAIVER_MEANS = "A waiver is a named person's OK to ship despite a failed check, with an expiry date."
+BRIEF_MEANS = "the landing brief, a one-page plan: what good looks like, by when, at what cost"
+
+# Order matters: the longer phrase first.
+WORDS = (
+    (r"\s*(?:Run from_gh\.py or pass|Pass) --[\w-]+ [\w.]+(?:, or --loop with a record that names one)?\.", " Add the export and run the check again."),
+    (r"\s*\((?:[^()]*\.(?:csv|json)\b[^()]*|[a-z_]+\.[a-z_]+ is empty)\)", ""),
+    (r"\bCheck '([^']+)' is failure but not required", r"The '\1' code check failed, but it is not required"),
+    (r"\bCheck '([^']+)' is failure, not success", r"The '\1' code check failed"),
+    (r"\bCheck '([^']+)' is (\w+)", r"The '\1' code check is \2"),
+    (r"\bCheck '", "Code check '"),
+    (r"\brelease\.json\b", "the release file"),
+    (r"\bthe release commit\b", "the version being released"),
+    (r"\bThe rollback trigger has no threshold\b", "The undo plan names no point to undo at"),
+    (r"\bNo signal is named to start a rollback\b", "The undo plan names no point to undo at"),
+    (r"\bstarts a rollback\b", "means undo"),
+    (r"\bstart a rollback\b", "undo"),
+    (r"\btrigger threshold\b", "point to undo at"),
+    (r"\brollback plan\b", "undo plan"),
+    (r"\bNobody owns the rollback\b", "Nobody owns the undo plan"),
+    (r"\bThe rollback\b", "The undo plan"),
+    (r"\brollback\b", "undo plan"),
+    (r"\brollout\b", "first release stage"),
+    (r"\bthe eval gate\b", "the quality tests"),
+    (r"\bThe eval gate does\b", "Quality tests do"),
+    (r"\beval gate\b", "quality tests"),
+    (r"\beval plan\b", "quality test plan"),
+    (r"\bno eval input\b", "no quality test results"),
+    (r"\bThe eval file lists no evals\b", "The quality test results list no tests"),
+    (r"\bEval '", "Quality test '"),
+    (r"\bevals\b", "quality tests"),
+    (r"\beval\b", "quality test"),
+    (r"\bSpec hold\b", "Build plan hold"),
+    (r"\bspec holds?\b", lambda m: m.group(0).replace("spec", "build plan")),
+    (r"\bthe spec\b", "the build plan"),
+    (r"\b[Ss]pec\b(?!-auditor)", lambda m: "Build plan" if m.group(0)[0] == "S" else "build plan"),
+    (r"\bthe loop record has no spec key\b", "the project file has no build plan check"),
+    (r"\bThe loop record\b", "The project file"),
+    (r"\bthe loop record\b", "the project file"),
+    (r"\bthe bar\b", "the target"),
+    (r"\bbar\b", "target"),
+    (r"\bthe brief's line is fixed code\b", "the landing brief says fixed code, not an AI model, does this work"),
+    (r"\bCI\b", "code checks"),
+    (r" \(02 Build plan\)", ""),
+    (r" \(sha256 [0-9a-f]+, record [0-9a-f]+\)", ""),
+)
+
+POLICY_WORDS = {
+    "max initial rollout percent": "largest first release stage, in percent",
+    "untriaged blocks": "an open bug with no severity holds the release",
+    "rollback test max age days": "days allowed since the undo plan was rehearsed",
+    "min eval cases": "fewest cases a quality test needs",
+    "eval max age days": "days allowed since the quality tests ran",
+    "require brief": "landing brief required",
+    "allow waivers": "waivers allowed",
+    "max waiver days": "longest a waiver may run, in days",
+}
+
+
+def plain(text: str) -> str:
+    """Public copy for a stored sentence: plain words, no file names or flags."""
+    for pattern, to in WORDS:
+        text = re.sub(pattern, to, text)
+    return text
+
+
+def plain_policy(change: str) -> str:
+    for key, words in POLICY_WORDS.items():
+        if change.startswith(key + ":"):
+            return words + change[len(key) :]
+    return change
+
+
+def worth_knowing(d: dict) -> list[str]:
+    """Notes for the public copy, in plain words."""
+    items = [plain(n) for c in d["checks"] for n in c["notes"]] + [plain(n) for n in d["waiver_problems"]]
+    items += [f"Policy changed from the default: {plain_policy(p)}" for p in d["policy_changes"]]
+    if not d["ai_feature"]:
+        items.append("Quality tests do not apply: the landing brief says fixed code, not an AI model, does this work.")
+    return items
+
+
+def verdict(d: dict) -> str:
+    """The page's heading: the call as one plain sentence."""
+    name = d["release"]
+    if d["readiness"] == READY and not d["waived"]:
+        return f"{name} is ready to ship."
+    if d["readiness"] == READY:
+        n = len(d["waived"])
+        return f"{name} is ready to ship, with {'one waiver' if n == 1 else f'{n} waivers'}."
+    n = len(d["holds"])
+    return f"{name} must hold: {'one check fails' if n == 1 else f'{n} checks fail'}."
+
+
+def plain_next_step(d: dict) -> str:
+    """The one step, in plain words, from the same facts as next_step."""
+    after = ""
+    if d["brief"]:
+        b = d["brief"]
+        after = f" After launch, did-it-land reads {b['metric'].lower()} against the {b['bar']} target, due {b['by']}."
+    if d["readiness"] == HOLD:
+        names = [PLAIN_LABELS.get(o["id"], o["label"]) for o in d["holds"]]
+        what = names[0].lower() if len(names) == 1 else ", ".join(SHORT.get(o["id"], o["label"]).lower() for o in d["holds"])
+        return f"Fix what fails ({what}) with each owner, then run this check again. Nothing ships on a hold."
+    if d["waived"]:
+        first = min(w["expires"] for w in d["waived"])
+        what = ", ".join(SHORT.get(w["id"], w["label"]).lower() for w in d["waived"])
+        return f"Ship it, then fix what the waiver covers ({what}) before it runs out on {first}.{after}"
+    return f"Ship it.{after}"
+
+
+def due(d: dict) -> str:
+    """When the next step is due: a waiver's end, else the day of the check."""
+    if d["readiness"] == READY and d["waived"]:
+        return min(w["expires"] for w in d["waived"])
+    return d["as_of"]
+
+
 def report(d: dict) -> str:
+    """The Markdown twin of the page, in the same plain words, with the engineering detail at the end."""
     lines = [f"# Release readiness: {cell(d['release'])}", ""]
     if d["illustrative"]:
         lines += ["*Illustrative: sample data, not a real release.*", ""]
-    bet = f" Bet: {cell(d['bet'])}." if d["bet"] else ""
-    lines += [f"Checked {d['as_of']}. Commit {cell(d['commit'] or 'not named')}. Release owner: {cell(d['owner'])}.{bet}", ""]
+    lines += [f"Checked {d['as_of']}. Release owner: {cell(d['owner'])}.", ""]
     first, rest = headline(d).split(". ", 1)
     lines.append(f"**{first}.** {rest}")
+    if d["waived"]:
+        lines += ["", WAIVER_MEANS]
+    lines += ["", "## What to do next", "", f"{cell(plain_next_step(d))} Decides: {cell(d['decides'])}. Due: {due(d)}."]
     if d["holds"]:
-        lines += ["", "## Held checks", "", "| Check | Owner | Why it holds |", "|---|---|---|"]
+        lines += ["", "## Checks that hold", "", "| Check | Owner | Why it holds |", "|---|---|---|"]
         for o in d["holds"]:
-            lines.append(f"| {cell(o['label'])} | {cell(o['owner'])} | {'<br>'.join(cell(r) for r in o['reasons'])} |")
+            lines.append(f"| {cell(PLAIN_LABELS.get(o['id'], o['label']))} | {cell(o['owner'])} | {'<br>'.join(cell(plain(r)) for r in o['reasons'])} |")
     if d["waived"]:
         lines += ["", "## Waivers, each a person's call", "", "| Check | Owner | Approved by | Expires | Reason | Holds because |", "|---|---|---|---|---|---|"]
         for w in d["waived"]:
-            why = "<br>".join(cell(r) for r in w["reasons"])
-            lines.append(f"| {cell(w['label'])} | {cell(w['owner'])} | {cell(w['approved_by'])} | {cell(w['expires'])} | {cell(w['reason'])} | {why} |")
+            why = "<br>".join(cell(plain(r)) for r in w["reasons"])
+            label = PLAIN_LABELS.get(w["id"], w["label"])
+            lines.append(f"| {cell(label)} | {cell(w['owner'])} | {cell(w['approved_by'])} | {cell(w['expires'])} | {cell(w['reason'])} | {why} |")
     waived_ids = {w["id"] for w in d["waived"]}
     lines += ["", "## Every check", "", "| Check | Check word | Owner |", "|---|---|---|"]
     for c in d["checks"]:
         word = f"{HOLD}, waived" if c["id"] in waived_ids else c["readiness"]
-        lines.append(f"| {cell(c['label'])} | {word} | {cell(c['owner'])} |")
+        lines.append(f"| {cell(PLAIN_LABELS.get(c['id'], c['label']))} | {word} | {cell(c['owner'])} |")
     if d["spec_holds"]:
-        lines += ["", "## Spec holds from 02 Spec", "", "| Finding | What spec-auditor said | Closed by | Closed |", "|---|---|---|---|"]
+        lines += ["", "## Build plan holds from spec-auditor", "", "| What spec-auditor said | Closed by | Closed |", "|---|---|---|"]
         for h in d["spec_holds"]:
-            lines.append(f"| {cell(h['finding'])} | {cell(h['message'])} | {cell(h['closed_by'] or 'no check here')} | {'yes' if h['closed'] else 'no'} |")
-    lines += ["", "## Next step", "", f"{cell(d['next_step'])} Decides: {cell(d['decides'])}."]
-    notes = [n for c in d["checks"] for n in c["notes"]] + d["waiver_problems"]
-    notes += [f"Policy changed from the default: {p}" for p in d["policy_changes"]]
-    if not d["ai_feature"]:
-        notes.append("The eval gate does not apply: the brief's line is fixed code and release.json does not mark an AI feature.")
+            by = SHORT.get(h["closed_by"], h["closed_by"]) if h["closed_by"] else "no check here"
+            lines.append(f"| {cell(plain(h['message']))} | {cell(by)} | {'yes' if h['closed'] else 'no'} |")
+    notes = worth_knowing(d)
     if notes:
-        lines += ["", "## Notes", ""] + [f"- {cell(n)}" for n in notes]
-    lines += ["", "## Evidence ledger", "", "| ID | Figure | Value | Window | Source |", "|---|---|---|---|---|"]
+        lines += ["", "## Worth knowing", ""] + [f"- {cell(n)}" for n in notes]
+    lines += ["", "## For your engineers", ""]
+    eng = [f"Commit {d['commit'] or 'not named'}.", f"Check ids: {', '.join(c['id'] for c in d['checks'])}."]
+    if d["bet"]:
+        eng.append(f"Writes the `release` key of `landing/{d['bet']}.json` and no other key.")
+    eng.append("readiness.py exits 0 on ready to ship, 1 on hold and 2 when an input cannot be read, so it can gate a CI job.")
+    lines += [f"- {cell(x) if '`' not in x else x}" for x in eng]
+    raw = [n for c in d["checks"] for n in c["notes"]] + d["waiver_problems"] + [f"Policy changed from the default: {p}" for p in d["policy_changes"]]
+    if not d["ai_feature"]:
+        raw.append("The eval gate does not apply: the brief's line is fixed code and release.json does not mark an AI feature.")
+    if raw:
+        lines += ["", "Notes as computed:", ""] + [f"- {cell(n)}" for n in raw]
+    if d["spec_holds"]:
+        lines += ["", "Spec holds as stored: " + "; ".join(f"{cell(h['finding'])} closed by {cell(h['closed_by'] or 'no check')}" for h in d["spec_holds"]) + "."]
+    lines += ["", "### Evidence ledger", "", "| ID | Figure | Value | Window | Source |", "|---|---|---|---|---|"]
     for c in d["checks"]:
         for f in c["figures"]:
             lines.append(f"| {cell(f['id'])} | {cell(f['label'])} | {cell(shown(f))} | {window(f)} | {cell(f['source'])} |")

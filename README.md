@@ -68,13 +68,13 @@ It reads no key later in the record order. The words are this check's own: **rea
 ```json
 {
   "release": {
-    "tool": "release-readiness 0.3.0",
+    "tool": "release-readiness 0.3.1",
     "as_of": "2026-09-05",
     "release": "Acme quote drafting v1.0",
     "commit": "5e1c0a9d3b72f4e8",
     "readiness": "ready to ship",
     "counts": {
-      "ready": {"value": 6, "unit": "checks ready to ship", "source": "release-readiness 0.3.0: count of the checks above; examples/acme/inputs/release.json",
+      "ready": {"value": 6, "unit": "checks ready to ship", "source": "release-readiness 0.3.1: count of the checks above; examples/acme/inputs/release.json",
                 "window": {"from": "2026-09-05", "to": "2026-09-05"}, "as_of": "2026-09-05"}
     },
     "checks": [

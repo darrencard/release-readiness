@@ -22,6 +22,8 @@ from helpers import FIXTURES, SAMPLE
 
 import loop
 import readiness
+import render_html
+import svgkit
 
 BET = "quote-drafting"
 UPSTREAM = SAMPLE / "upstream" / f"{BET}.json"
@@ -110,21 +112,69 @@ class Sample(unittest.TestCase):
     def test_the_page_uses_no_status_colour_and_brass_only_for_a_persons_call(self) -> None:
         page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
         body = page.split("</style>", 1)[1]
-        for token in ("--landed", "--watch", "--stalled", 'class="st ', "rd landed", "ac landed"):
+        # Green only beside the word landed, red only beside stalled: this page prints neither word, so it paints neither colour.
+        for token in ("--landed", "--watch", "--stalled", 'class="st ', "sk-st", "rd landed", "ac landed"):
             self.assertNotIn(token, body)
         css = page.split("<style>", 1)[1].split("</style>", 1)[0]
-        page_css = css[css.index("::selection{background:var(--t1)") :]
+        page_css = css[css.index("main.solo{margin-left:0}") :]
         self.assertNotRegex(page_css, r"--(?:landed|watch|stalled)")
-        brass = re.findall(r'class="(who|wv|own owes)"[^>]*>([^<]*)', body)
-        self.assertTrue(brass)
-        for cls, text in brass:
-            self.assertRegex(text, r"Approved by|Decides|Waived by|Owner", cls)
-        self.assertIn('class="ill"', body)
+        brass = re.findall(r"[^}]*var\(--brass[^}]*}", page_css)
+        self.assertTrue(brass and all(r.lstrip("}").lstrip().startswith((".next", ".wv")) for r in brass), "brass is only who decides and who waived")
+        for svg in svgkit.visuals_in(page):
+            for m in re.finditer(r'<text[^>]*color:var\(--brass\)[^>]*>([^<]*)</text>', svg):
+                self.assertRegex(m.group(1), r"^(?:Waived by |UNTIL )")
+        self.assertIn('class="sk-ill"', body)
+
+    def test_the_page_follows_the_sample_anatomy(self) -> None:
+        body = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8").split('<main class="solo">', 1)[1]
+        order = ['class="sk-hdr"', "<h1>Acme quote drafting v1.0 is ready to ship, with one waiver.</h1>", 'class="rw"', 'class="sk-wide"', "What to do next", 'class="cols"', "For your engineers"]
+        at = [body.index(x) for x in order]
+        self.assertEqual(at, sorted(at))
+        self.assertEqual(body.count('<div class="next">'), 1)
+        self.assertIn('<span class="o">Head of Product, Quoting squad</span><span class="d">2026-09-19</span>', body)
+        self.assertIn("<details><summary>For your engineers</summary>", body)
+
+    def test_the_visual_draws_only_figures_the_page_prints(self) -> None:
+        page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
+        visuals = svgkit.visuals_in(page)
+        self.assertEqual(len(visuals), 2, "the wide and the tall variant")
+        self.assertEqual(svgkit.unprinted(page), [])
+        for svg in visuals:
+            texts = svgkit.texts_in(svg)
+            self.assertEqual(svg.count('fill="var(--t1)"') >= 1, True)
+            self.assertIn("Waived by Head of Product, Quoting squad", texts)
+            self.assertIn("UNTIL 2026-09-19", texts)
+
+    def test_the_visual_states_the_answer(self) -> None:
+        page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
+        for svg in svgkit.visuals_in(page):
+            self.assertIn('role="img"', svg)
+            label = re.search(r'aria-label="([^"]+)"', svg).group(1)
+            self.assertEqual(
+                label,
+                "Acme quote drafting v1.0 is ready to ship: 6 of 7 checks are ready to ship; "
+                "open bugs holds under a waiver from Head of Product, Quoting squad until 2026-09-19.",
+            )
+        held = readiness.decide(FIXTURES / "acme-held" / "release.json", *(FIXTURES / "acme-held" / f"{k}.csv" for k in ("ci", "bugs", "flags", "evals")), FIXTURES / "acme-held" / "brief.md")
+        label = re.search(r'aria-label="([^"]+)"', render_html.gates(held, "wide")).group(1)
+        self.assertTrue(label.endswith("must hold: 3 of 6 checks are ready to ship, and code checks, open bugs and quality tests hold."), label)
+        self.assertEqual(render_html.gates(held, "wide").count('fill="var(--t1)"'), 3, "one solid gate per held check")
+
+    def test_public_copy_uses_plain_words(self) -> None:
+        page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
+        twin = (SAMPLE / "release-readiness.md").read_text(encoding="utf-8")
+        for name, public in (("page", svgkit.page_text(page.split("For your engineers", 1)[0]).lower()), ("twin", twin.split("## For your engineers", 1)[0].lower())):
+            with self.subTest(output=name):
+                for word in (r"\bbets?\b", "eval", "rollback", "rollout", r"\bbar\b", r"\.csv", r"\.json", r"(?<![-|])--[a-z]", r"\bci\b", "commit", "holdout", "traces"):
+                    self.assertIsNone(re.search(word, public), word)
+                self.assertIsNone(re.search(r"\bspec\b(?!-auditor)", public), "spec only in spec-auditor's name")
+        self.assertIn("the landing brief, a one-page plan: what good looks like, by when, at what cost", page)
+        self.assertIn("A waiver is a named person's OK to ship despite a failed check, with an expiry date.", twin)
 
     def test_the_page_is_self_contained(self) -> None:
         page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
         self.assertIsNone(re.search(r"<(?:script|link|img)\b", page))
-        self.assertNotIn("http://", page.split("</style>", 1)[1])
+        self.assertNotIn("http://", page.split("</style>", 1)[1].replace(' xmlns="http://www.w3.org/2000/svg"', ""))
 
 
 class Record(unittest.TestCase):

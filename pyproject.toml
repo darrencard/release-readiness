@@ -1,6 +1,6 @@
 [project]
 name = "release-readiness"
-version = "0.3.0"
+version = "0.3.1"
 description = "A Claude skill that says whether one release is ready to ship or must hold, step 03 of the Landing Loop."
 requires-python = ">=3.11"
 # Standard library only, on purpose: the scripts run inside sandboxes that cannot install packages.
@@ -9,8 +9,8 @@ dependencies = []
 [tool.ruff]
 line-length = 160
 target-version = "py311"
-# Copied byte for byte from the Leader Report at a pinned commit (VENDORED.json); linted there, never edited here.
-extend-exclude = ["skills/release-readiness/assets/vendor"]
+# Copied byte for byte at pinned commits (VENDORED.json): the Leader Report template and landing-loop's svgkit. Linted there, never edited here.
+extend-exclude = ["skills/release-readiness/assets/vendor", "skills/release-readiness/scripts/vendor"]
 
 [tool.ruff.lint]
 # E, F: errors and unused names. I: import order. B: likely bugs. UP: old syntax.

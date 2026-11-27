@@ -323,7 +323,7 @@ class TextIsData(Base):
         edit_release(fx, owners={"ci": self.INJECTED})
         text = readiness.report(self.call(fx))
         self.assertNotIn("<script>", text)
-        row = next(line for line in text.splitlines() if line.startswith("| CI passes"))
+        row = next(line for line in text.splitlines() if line.startswith("| Code checks pass"))
         self.assertEqual(row.count(" | "), 2, row)
 
 

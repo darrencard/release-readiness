@@ -13,5 +13,16 @@
       "sha256": "e5740431ab5269606709d352d3d253325df740830e8316f06478873e71d430d0"
     }
   },
-  "collectors": "None vendored. The Leader Report's collectors read pull requests, deployments, trackers and analytics; none reads check runs, commit statuses or bug severity labels at a commit. from_gh.py is this skill's own reader for those, through gh, with the CSV formats in references/inputs.md as the fallback."
+  "collectors": "None vendored. The Leader Report's collectors read pull requests, deployments, trackers and analytics; none reads check runs, commit statuses or bug severity labels at a commit. from_gh.py is this skill's own reader for those, through gh, with the CSV formats in references/inputs.md as the fallback.",
+  "landing-loop": {
+    "repository": "https://github.com/darrencard/landing-loop",
+    "commit": "5d01756d08ab3eb92b457c3286729791df6bcf5f",
+    "rule": "Copied unchanged from tools/svgkit.py (see tools/SVGKIT.md there). Never edit it here.",
+    "files": {
+      "scripts/vendor/svgkit.py": {
+        "from": "tools/svgkit.py",
+        "sha256": "8526cf100159a9e5a8958bba4ceb0373a7edc265f481d63795d1731a5999d054"
+      }
+    }
+  }
 }

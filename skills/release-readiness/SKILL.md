@@ -4,7 +4,7 @@ description: Says whether one software release is ready to ship or must hold, fr
 license: MIT. See LICENSE in the repository root.
 metadata:
   author: Dacard
-  version: "0.3.0"
+  version: "0.3.1"
 ---
 
 # Release readiness
@@ -91,7 +91,7 @@ With `--loop`, it writes only the `release` key of `landing/<bet>.json`, in its 
 
 ### 4. Report
 
-Show `run/report.md` as it is and point the user to `run/report.html`, the page for leaders. Lead with the call. For a hold, the held checks table is the answer: each row is owned work. Point out anything under Notes (non-required checks failing, waivers that did not count, policy changes). Do not add figures that are not in the report.
+Show `run/report.md` as it is and point the user to `run/report.html`, the page for leaders. Lead with the call. For a hold, the "Checks that hold" table is the answer: each row is owned work. Point out anything under "Worth knowing" (non-required checks failing, waivers that did not count, policy changes). The report uses plain words for leaders; file names, check ids and the record key sit under "For your engineers". Do not add figures that are not in the report.
 
 ### 5. Draft (only if the user asks)
 

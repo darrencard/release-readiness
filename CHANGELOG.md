@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.1, 2026-11-27
+
+- The HTML page follows the Landing Loop sample anatomy: the shared header (mark, DACARD, skill, date, version, blue Illustrative tag), the call as the heading ("Acme quote drafting v1.0 is ready to ship, with one waiver."), the check word, the signature picture, one next step with the brief's decider in brass and a due date, then every check beside the waiver, the build plan holds, the plan behind the release and what is worth knowing, in two columns. Check ids, stored labels and reasons, notes as computed, the record key, exit codes and the evidence ledger fold under "For your engineers".
+- The signature picture: a row of gates, one per check. Ready to ship is an outline with a tick, hold is solid ink, and the waived check carries the approver's name and the waiver's end date in brass. A 720 wide variant for desktop and a 340 wide one for phones; the aria-label states the call. Drawn with svgkit, vendored byte-identical from landing-loop and pinned in `VENDORED.json` under `landing-loop`.
+- The Illustrative tag is blue (#74A5DA), not grey.
+- Public copy in plain words, on the page and in the Markdown twin: code checks, quality tests, undo plan, first release stage, build plan, target, project file, and a waiver defined at first use. The record keeps its own words: check labels, reasons and `next_step` are stored as before.
+- Tests: the picture draws only printed figures, states the call in its aria-label, and the page paints no status colour (it prints neither landed nor stalled); brass is only who decides and who waived; public copy uses the plain words; the vendored svgkit matches its pin.
+
 ## 0.3.0, 2026-11-26
 
 - The Acme sample tells the loop's story: the rollback trigger is the one decided on 2026-08-10 (wrong-price quotes over 2%, decision-record's D-0004), owned by the tech lead. Samples and fixtures name only the Acme org chart's four roles.

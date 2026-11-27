@@ -53,7 +53,9 @@ class Wording(unittest.TestCase):
     def test_the_sample_data_says_it_is_illustrative(self) -> None:
         self.assertTrue(json.loads((SAMPLE / "inputs" / "release.json").read_text(encoding="utf-8"))["illustrative"])
         self.assertIn("Illustrative", (SAMPLE / "briefs" / "quote-drafting.md").read_text(encoding="utf-8"))
-        self.assertIn('<span class="ill">Illustrative</span>', (SAMPLE / "release-readiness.html").read_text(encoding="utf-8"))
+        page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
+        self.assertIn('<span class="sk-ill">Illustrative</span>', page)
+        self.assertIn(":root{--ill:#74A5DA}", page, "the Illustrative tag is blue")
 
 
 class Skill(unittest.TestCase):
@@ -104,14 +106,14 @@ class Story(unittest.TestCase):
 
 
 class Versions(unittest.TestCase):
-    def test_every_version_field_is_0_3_0(self) -> None:
+    def test_every_version_field_is_0_3_1(self) -> None:
         plugin = json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))["version"]
         project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
         skill = re.search(r'version: "([^"]+)"', (SKILL / "SKILL.md").read_text(encoding="utf-8")).group(1)
-        self.assertEqual({plugin, project, skill, readiness.VERSION}, {"0.3.0"})
+        self.assertEqual({plugin, project, skill, readiness.VERSION}, {"0.3.1"})
 
     def test_the_changelog_has_a_dated_entry_for_this_version(self) -> None:
-        self.assertIn("## 0.3.0, 2026-11-26", (ROOT / "CHANGELOG.md").read_text(encoding="utf-8"))
+        self.assertIn("## 0.3.1, 2026-11-27", (ROOT / "CHANGELOG.md").read_text(encoding="utf-8"))
 
 
 class Vendored(unittest.TestCase):
@@ -121,6 +123,14 @@ class Vendored(unittest.TestCase):
         for rel, pin in pins["files"].items():
             with self.subTest(file=rel):
                 self.assertEqual(hashlib.sha256((SKILL / rel).read_bytes()).hexdigest(), pin["sha256"])
+
+    def test_svgkit_matches_its_landing_loop_pin(self) -> None:
+        pin = json.loads((SKILL / "VENDORED.json").read_text(encoding="utf-8"))["landing-loop"]
+        self.assertEqual(pin["commit"], "5d01756d08ab3eb92b457c3286729791df6bcf5f")
+        self.assertEqual(set(pin["files"]), {"scripts/vendor/svgkit.py"})
+        for rel, info in pin["files"].items():
+            digest = hashlib.sha256((SKILL / rel).read_bytes()).hexdigest()
+            self.assertEqual(digest, info["sha256"], f"{rel} changed. Copy it again from landing-loop at the pinned commit and update VENDORED.json.")
 
     def test_the_brief_parser_is_the_contract_one(self) -> None:
         digest = hashlib.sha256((SKILL / "scripts" / "landing_brief.py").read_bytes()).hexdigest()

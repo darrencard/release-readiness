@@ -2,9 +2,15 @@
 
 *Illustrative: sample data, not a real release.*
 
-Checked 2026-09-05. Commit 5e1c0a9d3b72f4e8. Release owner: Lead, Quoting squad. Bet: quote-drafting.
+Checked 2026-09-05. Release owner: Lead, Quoting squad.
 
 **Ready to ship, with 1 waiver.** 6 of 7 checks are ready to ship; 1 check holds under a waiver.
+
+A waiver is a named person's OK to ship despite a failed check, with an expiry date.
+
+## What to do next
+
+Ship it, then fix what the waiver covers (open bugs) before it runs out on 2026-09-19. After launch, did-it-land reads quote draft acceptance rate against the 40% target, due 2026-11-15. Decides: Head of Product, Quoting squad. Due: 2026-09-19.
 
 ## Waivers, each a person's call
 
@@ -16,32 +22,43 @@ Checked 2026-09-05. Commit 5e1c0a9d3b72f4e8. Release owner: Lead, Quoting squad.
 
 | Check | Check word | Owner |
 |---|---|---|
-| CI passes on the release commit | ready to ship | Tech lead, Quoting squad |
+| Code checks pass on the version being released | ready to ship | Tech lead, Quoting squad |
 | Open bugs within the severity limits | hold, waived | Lead, Quoting squad |
-| Every change behind a flag with an off switch | ready to ship | Tech lead, Quoting squad |
-| Rollback written, owned, rehearsed, with a trigger threshold | ready to ship | Tech lead, Quoting squad |
+| Every change can be switched off | ready to ship | Tech lead, Quoting squad |
+| Undo plan written, owned and rehearsed, with a point to undo at | ready to ship | Tech lead, Quoting squad |
 | Landing brief complete, and its date still ahead | ready to ship | Head of Product, Quoting squad |
-| Eval gate passes on the release commit | ready to ship | Tech lead, Quoting squad |
-| Spec holds from spec-auditor are closed | ready to ship | Lead, Quoting squad |
+| Quality tests pass on the version being released | ready to ship | Tech lead, Quoting squad |
+| Build plan holds from spec-auditor are closed | ready to ship | Lead, Quoting squad |
 
-## Spec holds from 02 Spec
+## Build plan holds from spec-auditor
 
-| Finding | What spec-auditor said | Closed by | Closed |
-|---|---|---|---|
-| rollback | The rollback plan has no trigger threshold. | rollback | yes |
-| eval-plan | The eval plan has no time it runs. | evals | yes |
+| What spec-auditor said | Closed by | Closed |
+|---|---|---|
+| The undo plan has no point to undo at. | Undo plan | yes |
+| The quality test plan has no time it runs. | Quality tests | yes |
 
-## Next step
+## Worth knowing
 
-Ship, and close each waived check before its waiver runs out (the first on 2026-09-19). After launch, did-it-land reads quote draft acceptance rate against the 40% bar set for 2026-11-15. Decides: Head of Product, Quoting squad.
+- The 'visual-diff' code check failed, but it is not required, so it does not hold the release.
+- Policy changed from the default: open major bugs allowed: 1 (default 3)
+- Policy changed from the default: largest first release stage, in percent: 25 (default 100)
 
-## Notes
+## For your engineers
+
+- Commit 5e1c0a9d3b72f4e8.
+- Check ids: ci, bugs, flags, rollback, brief, evals, spec.
+- Writes the `release` key of `landing/quote-drafting.json` and no other key.
+- readiness.py exits 0 on ready to ship, 1 on hold and 2 when an input cannot be read, so it can gate a CI job.
+
+Notes as computed:
 
 - Check 'visual-diff' is failure but not required, so it does not hold the release (ci.csv row 7).
 - Policy changed from the default: open major bugs allowed: 1 (default 3)
 - Policy changed from the default: max initial rollout percent: 25 (default 100)
 
-## Evidence ledger
+Spec holds as stored: rollback closed by rollback; eval-plan closed by evals.
+
+### Evidence ledger
 
 | ID | Figure | Value | Window | Source |
 |---|---|---|---|---|
@@ -69,4 +86,4 @@ Ship, and close each waived check before its waiver runs out (the first on 2026-
 | spec.holds | Holds spec-auditor raised | 2 findings | 2026-08-03 to 2026-09-05 | examples/acme/landing/quote-drafting.json, spec key (spec-auditor 0.3.1, 2026-08-03) |
 | spec.closed | Spec holds closed by a ready check | 2 findings | 2026-08-03 to 2026-09-05 | examples/acme/landing/quote-drafting.json, spec key (spec-auditor 0.3.1, 2026-08-03) |
 
-Computed by release-readiness 0.3.0. Every figure comes from the source named beside it.
+Computed by release-readiness 0.3.1. Every figure comes from the source named beside it.
