@@ -120,9 +120,9 @@ class Sample(unittest.TestCase):
         self.assertNotRegex(page_css, r"--(?:landed|watch|stalled)")
         brass = re.findall(r"[^}]*var\(--brass[^}]*}", page_css)
         self.assertTrue(brass and all(r.lstrip("}").lstrip().startswith((".next", ".wv")) for r in brass), "brass is only who decides and who waived")
-        for svg in svgkit.visuals_in(page):
-            for m in re.finditer(r"<text[^>]*color:var\(--brass\)[^>]*>([^<]*)</text>", svg):
-                self.assertRegex(m.group(1), r"^(?:Waived by |UNTIL )")
+        # In the scorecard, brass is only person_call: the role of the person who OK'd the waiver.
+        frame = svgkit.frames_in(page)[0]
+        self.assertEqual(re.findall(r'<span class="sc-o">.*?</svg>([^<]*)</span>', frame), ["Head of Product, Quoting squad"])
         self.assertIn('class="sk-ill"', body)
 
     def test_the_page_follows_the_sample_anatomy(self) -> None:
@@ -131,7 +131,7 @@ class Sample(unittest.TestCase):
             'class="sk-hdr"',
             "<h1>Acme quote drafting v1.0 is ready to ship, with one waiver.</h1>",
             'class="rw"',
-            'class="sk-wide"',
+            'role="img"',
             "What to do next",
             'class="cols"',
             "For your engineers",
@@ -144,33 +144,77 @@ class Sample(unittest.TestCase):
 
     def test_the_visual_draws_only_figures_the_page_prints(self) -> None:
         page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
-        visuals = svgkit.visuals_in(page)
-        self.assertEqual(len(visuals), 2, "the wide and the tall variant")
         self.assertEqual(svgkit.unprinted(page), [])
-        for svg in visuals:
-            texts = svgkit.texts_in(svg)
-            self.assertEqual(svg.count('fill="var(--t1)"') >= 1, True)
-            self.assertIn("Waived by Head of Product, Quoting squad", texts)
-            self.assertIn("UNTIL 2026-09-19", texts)
+        frame = svgkit.frames_in(page)[0]
+        self.assertEqual(len(re.findall(r'<svg class="sc-', frame)), 1, "one share bar; the check rows have no picture")
 
-    def test_the_visual_states_the_answer(self) -> None:
+    def test_the_scorecard_is_one_frame_with_the_share_first_and_one_row_per_check(self) -> None:
         page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
-        for svg in svgkit.visuals_in(page):
-            self.assertIn('role="img"', svg)
-            label = re.search(r'aria-label="([^"]+)"', svg).group(1)
-            self.assertEqual(
-                label,
-                "Acme quote drafting v1.0 is ready to ship: 6 of 7 checks are ready to ship; "
-                "open bugs holds under a waiver from Head of Product, Quoting squad until 2026-09-19.",
-            )
+        frames = svgkit.frames_in(page)
+        self.assertEqual(len(frames), 1, "one frame per visual")
+        frame = frames[0]
+        r = self.record["release"]
+        self.assertEqual(frame.count('<div class="sc-r">'), len(r["checks"]) + 1)
+        self.assertIn('<span class="sc-n">All checks</span><span class="sc-p"><svg class="sc-sh"', frame)
+        self.assertIn('<span class="sc-l"><b>6 of 7 ready</b></span>', frame)
+        names = re.findall(r'<span class="sc-n">([^<]*)</span>', frame)
+        self.assertEqual(names, ["All checks", "Code checks", "Open bugs", "Off switch", "Undo plan", "Brief", "Quality tests", "Build plan"])
+        self.assertIn('<span class="sc-l"><b>2 major open</b> · until 2026-09-19</span>', frame, "the waiver's expiry on its figure line")
+        self.assertIn('<span class="sc-l"><b>5 of 5 pass</b></span>', frame)
+        words = re.findall(r'<span class="(sc-w(?: ink)?)">([^<]*)</span>', frame)
+        self.assertEqual(sorted({w for _, w in words}), ["hold", "ready to ship"])
+        self.assertEqual({cls for cls, w in words if w == "hold"}, {"sc-w ink"})
+        self.assertEqual({cls for cls, w in words if w == "ready to ship"}, {"sc-w"})
+        waived = re.search(r'<span class="sc-n">Open bugs</span>.*?</div>', frame).group(0)
+        self.assertIn('<span class="sc-w ink">hold</span><span class="sc-o">', waived)
+
+    def test_no_text_inside_a_picture_and_no_picture_scales(self) -> None:
+        page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
+        self.assertEqual(svgkit.svgs_with_text(page), [])
+        self.assertEqual(svgkit.scaled_svgs_in(page), [])
+
+    def test_labels_render_12px_and_names_14px(self) -> None:
+        page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
+        css = page.split("<style>", 1)[1].split("</style>", 1)[0]
+        self.assertEqual(set(svgkit.font_sizes(css)), {"var(--sc-m)", "var(--sc-n)"})
+        self.assertIn("--sc-m:calc(12px / var(--sc-z))", css)
+        self.assertIn("--sc-n:calc(14px / var(--sc-z))", css)
+        self.assertIn(".scg{--sc-z:1;", css, "a sample page has no zoom")
+
+    def test_no_box_inside_the_scorecard_and_no_overlap(self) -> None:
+        page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
+        css = page.split("<style>", 1)[1].split("</style>", 1)[0]
+        self.assertEqual(svgkit.boxes_in_frames(page, css), [])
+        self.assertNotIn('class="chip"', page.split("For your engineers", 1)[0])
+        self.assertNotIn("position:absolute", svgkit.SCORECARD_CSS)
+
+    def test_no_legacy_svgkit_primitive_draws_on_the_page(self) -> None:
+        import warnings
+
+        page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
+        self.assertEqual(svgkit.legacy_in(page), [])
         held = readiness.decide(
             FIXTURES / "acme-held" / "release.json",
             *(FIXTURES / "acme-held" / f"{k}.csv" for k in ("ci", "bugs", "flags", "evals")),
             FIXTURES / "acme-held" / "brief.md",
         )
-        label = re.search(r'aria-label="([^"]+)"', render_html.gates(held, "wide")).group(1)
-        self.assertTrue(label.endswith("must hold: 3 of 6 checks are ready to ship, and code checks, open bugs and quality tests hold."), label)
-        self.assertEqual(render_html.gates(held, "wide").count('fill="var(--t1)"'), 3, "one solid gate per held check")
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", DeprecationWarning)
+            render_html.page(held)
+
+    def test_the_visual_states_the_answer(self) -> None:
+        page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
+        labels = re.findall(r'role="img" aria-label="([^"]+)"', page)
+        self.assertEqual(labels, ["Acme quote drafting v1.0 is ready to ship, with one waiver."])
+        held = readiness.decide(
+            FIXTURES / "acme-held" / "release.json",
+            *(FIXTURES / "acme-held" / f"{k}.csv" for k in ("ci", "bugs", "flags", "evals")),
+            FIXTURES / "acme-held" / "brief.md",
+        )
+        frame = render_html.scorecard(held)
+        self.assertEqual(re.search(r'aria-label="([^"]+)"', frame).group(1), readiness.verdict(held))
+        self.assertIn('<span class="sc-l"><b>3 of 6 ready</b></span>', frame)
+        self.assertEqual(frame.count('<span class="sc-w ink">hold</span>'), 4, "the call, then one ink hold per held check")
 
     def test_no_text_smaller_than_11px(self) -> None:
         page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")

@@ -6,12 +6,15 @@ byte-identical at a pinned commit), and draws its picture with svgkit (scripts/v
 byte-identical from landing-loop and pinned in VENDORED.json). Only a few rules for this page's layout are added.
 
 It reads top down for someone who has never shipped software: the shared header, the call as the heading, the
-check word, a row of gates (one per check: an outline with a tick is ready to ship, solid ink holds, and a waived
-check carries the name of the person who OK'd it and the date it runs out), then one thing to do next, owned by
+check word, the checks as scorecard rows (the share that are ready, then one row per check with its figure and its
+word; a waived check carries the person who OK'd it in brass and the date it runs out), then one thing to do next, owned by
 the person the landing brief names. The checks follow in two columns. The evidence ledger and everything
 technical (check ids, file names, the record key, exit codes) sit in one fold. Public copy uses plain words.
 
-ready to ship and hold are this check's own words and print in ink, with no status colour: green, grey-white and
+The rows follow the scorecard grammar (svgkit 1.2.0): HTML rows split by hairlines, Geist Mono 12px for labels,
+figures and words, Geist 14px for names, a fixed-height share bar with no text in it, words as text, never chips.
+
+ready to ship and hold are this check's own words, hold in ink and ready to ship muted, with no status colour: green, grey-white and
 red mean a project's landed, watch and stalled, which only did-it-land sets. Brass is a person's call: who
 waived a check, and who decides the next step. Every figure is a display string of a figure computed in
 readiness.py; the page computes nothing. Nothing is fetched, nothing depends on the clock, and every piece of
@@ -46,11 +49,9 @@ main.solo{margin-left:0}
 .solo h1{font-size:clamp(34px,4.6vw,60px);line-height:1;letter-spacing:-.04em;max-width:20ch;margin-bottom:20px}
 .solo .lede{margin-bottom:24px}
 .solo h2{margin-bottom:16px}
-.rw{display:inline-block;font:400 11px/16px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--t1);border:1px solid var(--line3);border-radius:3px;padding:1px 6px;white-space:nowrap}
-.rw.hold{background:var(--t1);color:var(--bg);border-color:var(--t1)}
+.rw{display:inline-block;font:400 12px/16px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--t2);white-space:nowrap}
+.rw.hold{color:var(--t1);font-weight:500}
 .verdict{margin:0 0 20px}
-@media (min-width:1100px){.panel .sk{display:grid;grid-template-columns:720px minmax(0,1fr);gap:16px 40px;align-items:center}.panel .sk figcaption{margin-top:0;flex-direction:column;align-items:flex-start}}
-.panel{border:1px solid var(--line);border-radius:12px;background:var(--s1);padding:28px 28px 20px}
 .next{margin-top:28px;display:grid;grid-template-columns:200px minmax(0,1fr);gap:8px 32px;align-items:baseline;border:1px solid var(--brass);border-radius:12px;padding:20px 24px;background:var(--brass-bg)}
 .next>b{font:400 11px/22px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--brass)}
 .next p{margin:0;font-size:16px;line-height:1.5;color:var(--t1)}
@@ -87,7 +88,7 @@ main.solo{margin-left:0}
 ::selection{background:var(--t1);color:var(--bg)}
 :focus-visible{outline-color:var(--t1)}
 .foot{max-width:1120px;margin:0 auto;padding:28px 40px 64px;color:var(--t3);font-size:12px}
-@media (max-width:980px){.foot{padding:24px 16px 48px}.solo .slide.cover{padding-top:24px}.cols,.next{grid-template-columns:1fr}.panel{padding:20px 0 16px;border-left:0;border-right:0;border-radius:0;background:none}
+@media (max-width:980px){.foot{padding:24px 16px 48px}.solo .slide.cover{padding-top:24px}.cols,.next{grid-template-columns:1fr}
 .stack table,.stack tbody,.stack tr,.stack td{display:block}.stack tr:first-child{display:none}.stack tr{padding:10px 16px;border-bottom:1px solid var(--line)}
 .stack td{border:0;padding:3px 0;display:grid;grid-template-columns:96px 1fr;gap:12px}.stack td.num{text-align:left;white-space:normal}
 .stack td::before{content:attr(data-l);font:400 11px/20px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--t3)}}
@@ -201,83 +202,31 @@ class Table:
         return f'<div class="tablewrap stack"><table>{head}{"".join(self.rows)}</table></div>'
 
 
-# The signature picture
+# The scorecard
 
 
-def answer(d: dict) -> str:
-    """The aria-label: the call and why, in one sentence."""
-    lead = f"{d['release']} is ready to ship" if d["readiness"] == readiness.READY else f"{d['release']} must hold"
-    text = f"{lead}: {d['ready']} of {d['total']} checks are ready to ship"
-    if d["holds"]:
-        names = [readiness.SHORT.get(o["id"], o["label"]).lower() for o in d["holds"]]
-        listed = names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1]
-        text += f", and {listed} {'holds' if len(names) == 1 else 'hold'}"
-    for w in d["waived"]:
-        text += f"; {readiness.SHORT.get(w['id'], w['label']).lower()} holds under a waiver from {w['approved_by']} until {w['expires']}"
-    return text + "."
-
-
-def gates(d: dict, variant: str) -> str:
-    """One gate per check, in the order they run. Ready: an outline with a tick. Hold: solid ink. A waived check
-    carries the approver's name and the date the waiver runs out, in brass, because a waiver is a person's call."""
+def scorecard(d: dict) -> str:
+    """The checks as scorecard rows: first the share that are ready, then one row per check in the order they run,
+    each with its figure and its word (ready to ship muted, hold in ink). A waived check also carries the person who
+    OK'd it, in brass, and the date the waiver runs out on its figure line, because a waiver is a person's call."""
     waived = {w["id"]: w for w in d["waived"]}
-    checks = d["checks"]
-    parts: list[str] = []
-    if variant == "wide":
-        width = float(sk.WIDE)
-        cw = width / len(checks)
-        size, gy = 30.0, 4.0
-        cy = gy + size / 2
-        parts.append(sk.rule(cw / 2, cy, width - cw / 2, cy, tone=sk.LINE2))
-        tag_at = None
-        for i, c in enumerate(checks):
-            cx = cw * i + cw / 2
-            parts.append(sk.gate(cx - size / 2, gy, state="hold" if c["readiness"] == readiness.HOLD else "ready", size=size))
-            parts.append(sk.label(cx, gy + size + 22, readiness.SHORT.get(c["id"], c["id"]), anchor="middle", tone=sk.INK))
-            parts.append(sk.value(cx, gy + size + 42, short_figure(c), anchor="middle", tone=sk.INK2, size=13))
-            if c["readiness"] == readiness.HOLD and c["id"] not in waived:
-                parts.append(sk.label(cx, gy + size + 62, "hold", anchor="middle", tone=sk.INK))
-            if c["id"] in waived and tag_at is None:
-                tag_at = (cx, waived[c["id"]])
-        height = gy + size + 70
-        if tag_at:
-            cx, w = tag_at
-            top = height
-            who = f"Waived by {w['approved_by']}"
-            until = f"until {w['expires']}"
-            span = 30 + max(len(who) * 7.6, sk.label_width(until))
-            left = cx - 8 if cx - 8 + span <= width else width - span
-            parts.append(sk.rule(cx, gy + size + 52, cx, top + 6, tone=sk.BRASS, width=sk.STROKE))
-            parts.append(sk.person(left + 8, top + 26, size=14))
-            parts.append(sk.value(left + 24, top + 18, who, tone=sk.BRASS, size=14))
-            parts.append(sk.label(left + 24, top + 36, until, tone=sk.BRASS))
-            height = top + 42
-    else:
-        width = float(sk.TALL)
-        size, step, top = 22.0, 46.0, 2.0
-        rows: list[tuple[dict, float]] = []
-        y = top
-        for c in checks:
-            rows.append((c, y))
-            y += step + (44 if c["id"] in waived else 0)
-        last_c, last_y = rows[-1]
-        height = last_y + (size + 30 if last_c["id"] in waived else size + 8)
-        parts.append(sk.rule(size / 2, top + size / 2, size / 2, last_y + size / 2, tone=sk.LINE2))
-        for c, ry in rows:
-            hold = c["readiness"] == readiness.HOLD
-            parts.append(sk.gate(0, ry, state="hold" if hold else "ready", size=size))
-            parts.append(sk.label(36, ry + 15, readiness.SHORT.get(c["id"], c["id"]), tone=sk.INK))
-            if hold and c["id"] not in waived:
-                parts.append(sk.label(width, ry + 15, "hold", anchor="end", tone=sk.INK))
-                parts.append(sk.value(width - 44, ry + 16, short_figure(c), anchor="end", tone=sk.INK2, size=13))
-            else:
-                parts.append(sk.value(width, ry + 16, short_figure(c), anchor="end", tone=sk.INK2, size=13))
-            if c["id"] in waived:
-                w = waived[c["id"]]
-                parts.append(sk.person(43, ry + 56, size=13))
-                parts.append(sk.value(56, ry + 49, f"Waived by {w['approved_by']}", tone=sk.BRASS, size=13))
-                parts.append(sk.label(56, ry + 66, f"until {w['expires']}", tone=sk.BRASS))
-    return sk.frame("".join(parts), label=answer(d), height=height, width=width, variant=variant)
+    share = sk.sc_row(
+        "All checks",
+        picture=sk.share_bar(d["ready"], d["total"]),
+        figure=sk.figure_line(f"{d['ready']} of {d['total']} ready"),
+        word=sk.check_word(d["readiness"], ink=d["readiness"] == readiness.HOLD),
+    )
+    rows = [share]
+    for c in d["checks"]:
+        hold = c["readiness"] == readiness.HOLD
+        w = waived.get(c["id"])
+        figure = sk.figure_line(short_figure(c), tail=f"until {w['expires']}" if w else "")
+        word = sk.check_word(c["readiness"], ink=hold) + (sk.person_call(w["approved_by"]) if w else "")
+        rows.append(sk.sc_row(readiness.SHORT.get(c["id"], c["id"]).capitalize(), figure=figure, word=word))
+    caption = "The first row shows the share of checks that are ready to ship. Then one row per check, in the order they run."
+    if d["waived"]:
+        caption += " A waived check names the person who OK'd it and the date the waiver runs out."
+    return sk.sc_frame(rows, label=readiness.verdict(d), title="Checks", head=["Check", "", "Found", "Result"], caption=caption, illustrative=d["illustrative"])
 
 
 # The words
@@ -367,13 +316,7 @@ def ledger(d: dict) -> str:
 
 def page(d: dict) -> str:
     header = sk.page_header(NAME, date=d["as_of"], version=f"v{readiness.VERSION}", illustrative=d["illustrative"])
-    pic = sk.figure(
-        gates(d, "wide"),
-        gates(d, "tall"),
-        caption="One gate per check, in the order they run. An outline with a tick is ready to ship; a solid block holds."
-        + (" The waived check carries the name of the person who OK'd it and the date the waiver runs out." if d["waived"] else ""),
-        illustrative=d["illustrative"],
-    )
+    pic = scorecard(d)
     step = (
         f'<div class="next"><b>What to do next</b><div><p>{e(readiness.plain_next_step(d))}</p>'
         f'<span class="who"><span class="o">{e(d["decides"])}</span><span class="d">{e(readiness.due(d))}</span></span></div></div>'
@@ -381,7 +324,7 @@ def page(d: dict) -> str:
     cover = (
         f'<section class="slide cover">{header}<h1>{e(readiness.verdict(d))}</h1>'
         f'<p class="lede">{e(lede(d))}</p><p class="verdict">{word(d["readiness"])}</p>'
-        f'<div class="panel">{pic}</div>{step}</section>'
+        f"{pic}{step}</section>"
     )
     detail = (
         '<section class="slide"><div class="meta"><span>The checks</span></div><div class="cols">'
@@ -391,7 +334,7 @@ def page(d: dict) -> str:
     title = f"Release readiness: {d['release']}"
     return (
         '<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-        f'<title>{e(title)}</title><style>{floor_fonts(stylesheet() + sk.CSS + PAGE_CSS)}</style></head><body><main class="solo">{cover}{detail}{more}'
+        f'<title>{e(title)}</title><style>{floor_fonts(stylesheet() + sk.CSS + sk.SCORECARD_CSS + PAGE_CSS)}</style></head><body><main class="solo">{cover}{detail}{more}'
         '<p class="foot">A release check says whether this version is ready to ship, not whether the project will work. '
         "did-it-land reads the number against the target after launch. Every figure is computed in code from the sources named.</p>"
         "</main></body></html>\n"

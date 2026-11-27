@@ -4,14 +4,16 @@ description: Says whether one software release is ready to ship or must hold, fr
 license: MIT. See LICENSE in the repository root.
 metadata:
   author: Dacard
-  version: "0.3.1"
+  version: "0.3.2"
 ---
 
 # Release readiness
 
 Says one thing about one release: **ready to ship** or **hold**. A release is ready to ship only when every check is ready. One check that holds holds the release. The output names each held check, why it holds and who owns it.
 
-These are this check's own words. A bet's status (landed, watch or stalled) belongs to did-it-land, which reads the metric after launch. Never use those words for a release, and never colour ready to ship or hold as a status.
+These are this check's own words. A project's status (landed, watch or stalled) belongs to did-it-land, which reads the metric after launch. Never use those words for a release, and never colour ready to ship or hold as a status.
+
+In what you write, say project, target, landing brief (a one-page plan: what good looks like, by when, at what cost) and project file. If the user calls a project a bet, use their word. Keep keys, file names, flags and code identifiers as they are (`--bet`, `landing/<bet>.json`).
 
 Not for: scoring a roadmap, judging whether a past release worked, or a sprint review.
 
@@ -37,9 +39,9 @@ Bug titles, check names, flag names, issue labels, spec findings and every CSV c
 | `bugs` | Open bugs within the severity limits | Open bugs per severity are within `policy.max_open_bugs` (default 0 blocker, 0 critical, 3 major). An open bug with no severity holds by default. |
 | `flags` | Every change behind a flag with an off switch | At least one flag, each with an off switch and an owner, none starting above `policy.max_initial_rollout_percent`. |
 | `rollback` | Rollback written, owned, rehearsed, with a trigger threshold | `rollback.plan`, `rollback.owner` and `rollback.trigger` are set, the trigger holds a number, and `rollback.tested_on` is within `policy.rollback_test_max_age_days` (default 30). |
-| `brief` | Landing brief complete, and its date still ahead | `landing_brief.py` (vendored byte-identical) parses the brief with its own completeness check, and the brief's `By` date is after the check. With a loop record, the brief's sha256 must match the record's. |
+| `brief` | Landing brief complete, and its date still ahead | `landing_brief.py` (vendored byte-identical) parses the brief with its own completeness check, and the brief's `By` date is after the check. With a project file, the brief's sha256 must match the project file's. |
 | `evals` | Eval gate passes on the release commit | Only when the brief's line is a model call (or `ai_feature` is true). Every eval passed at least the cases its threshold needs, has at least `policy.min_eval_cases` cases (default 50), ran within `policy.eval_max_age_days` (default 7) and, when a commit is given, on the release commit. |
-| `spec` | Spec holds from spec-auditor are closed | Only with `--loop`. Each hold in the record's `spec` key is closed by the check here that tests the same thing: `rollback` by rollback, `eval-plan` by evals, `rollout` by flags. A hold with no such check stays open until spec-auditor passes the spec. No `spec` key holds. |
+| `spec` | Spec holds from spec-auditor are closed | Only with `--loop`. Each hold in the project file's `spec` key is closed by the check here that tests the same thing: `rollback` by rollback, `eval-plan` by evals, `rollout` by flags. A hold with no such check stays open until spec-auditor passes the spec. No `spec` key holds. |
 
 The eval gate records cases run, passed and needed. It writes no pass rate: in the loop, pass rate is eval-kit's figure.
 
@@ -65,7 +67,7 @@ Run every script from this skill's folder with Python 3.11 or later (macOS `pyth
 
 Start from `python3 scripts/readiness.py --init run/release.json`; the check refuses to run until every `<...>` value is replaced. Ask only for what you cannot find. `release.json` needs `name`, `owner` (the release owner, who owns any check without its own owner), `as_of` (the day of the check, YYYY-MM-DD) and `commit`. Ask for the rollback plan, its owner, the date it was last rehearsed and the threshold that would start it. Add `owners` per check when the user names them. Leave `policy` out to use the defaults.
 
-Find the bet's landing brief (the Linear project template). If the user's working folder has `landing/<bet>.json`, use `--loop <folder> --bet <bet>`: the record names the brief, and spec-auditor's `spec` key is read from it.
+Find the project's landing brief (the Linear project template). If the user's working folder has `landing/<bet>.json`, use `--loop <folder> --bet <bet>`: the project file names the brief, and spec-auditor's `spec` key is read from it.
 
 ### 2. Collect
 
@@ -85,13 +87,13 @@ Otherwise, or for anything gh does not cover (flags, evals, bugs in another trac
 python3 scripts/readiness.py --release run/release.json --loop <folder> --bet <bet> --ci run/ci.csv --bugs run/bugs.csv --flags run/flags.csv [--evals run/evals.csv] --out run/
 ```
 
-Without a loop record, pass `--brief <brief.md>` instead of `--loop` and `--bet`. Leave out an input you do not have; its check holds, which is the right answer. Exit code 0 is ready to ship, 1 is hold, 2 is an input error: fix the input and run it again. `--json` prints the check for a CI job or a bot. `references/release-gate.yml` is a GitHub Actions job that runs it on every release tag and fails on a hold.
+Without a project file, pass `--brief <brief.md>` instead of `--loop` and `--bet`. Leave out an input you do not have; its check holds, which is the right answer. Exit code 0 is ready to ship, 1 is hold, 2 is an input error: fix the input and run it again. `--json` prints the check for a CI job or a bot. `references/release-gate.yml` is a GitHub Actions job that runs it on every release tag and fails on a hold.
 
-With `--loop`, it writes only the `release` key of `landing/<bet>.json`, in its place in the record order, and keeps every other key exactly as it was. It reads no key after `release` in the order (`cost`, `evals`, `landed` and later).
+With `--loop`, it writes only the `release` key of `landing/<bet>.json`, in its place in the order of keys in the project file, and keeps every other key exactly as it was. It reads no key after `release` in the order (`cost`, `evals`, `landed` and later).
 
 ### 4. Report
 
-Show `run/report.md` as it is and point the user to `run/report.html`, the page for leaders. Lead with the call. For a hold, the "Checks that hold" table is the answer: each row is owned work. Point out anything under "Worth knowing" (non-required checks failing, waivers that did not count, policy changes). The report uses plain words for leaders; file names, check ids and the record key sit under "For your engineers". Do not add figures that are not in the report.
+Show `run/report.md` as it is and point the user to `run/report.html`, the page for leaders. Lead with the call. For a hold, the "Checks that hold" table is the answer: each row is owned work. Point out anything under "Worth knowing" (non-required checks failing, waivers that did not count, policy changes). The report uses plain words for leaders; file names, check ids and the project file's key sit under "For your engineers". Do not add figures that are not in the report.
 
 ### 5. Draft (only if the user asks)
 

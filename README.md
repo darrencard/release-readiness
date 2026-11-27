@@ -1,12 +1,12 @@
 # Release readiness: ready to ship, or hold
 
 ```text
-Install the release-readiness skill from https://github.com/darrencard/release-readiness: clone it, find a Python 3.11 or later on this machine (macOS python3 is often 3.9), run python3 examples/acme/sample.py and show me the page it writes. Then check my next release: read its landing brief and landing/<bet>.json record, read CI checks, commit statuses, branch protection and open bugs for OWNER/REPO through gh (or take my CSV exports), ask me only for the flags, the rollback plan and its trigger, the eval results and the release commit, and tell me ready to ship or hold with the owner of every held check.
+Install the release-readiness skill from https://github.com/darrencard/release-readiness: clone it, find a Python 3.11 or later on this machine (macOS python3 is often 3.9), run python3 examples/acme/sample.py and show me the page it writes. Then check my next release: read its landing brief and its project file, landing/<bet>.json, read CI checks, commit statuses, branch protection and open bugs for OWNER/REPO through gh (or take my CSV exports), ask me only for the flags, the rollback plan and its trigger, the eval results and the release commit, and tell me ready to ship or hold with the owner of every held check.
 ```
 
 A free Claude skill that says whether one release is **ready to ship** or must **hold**, check by check, and names who owns each hold.
 
-**Why it matters:** one open check is enough to hold a release, however good the rest looks. Code computes every figure from your CI, bugs, flags, rollback plan, evals and landing brief. A waiver is a person's call, named, with a reason and an end date, and it never turns a hold into ready.
+**Why it matters:** one open check is enough to hold a release, however good the rest looks. Code computes every figure from your CI, bugs, flags, rollback plan, evals and landing brief (a one-page plan: what good looks like, by when, at what cost). A waiver is a person's call, named, with a reason and an end date, and it never turns a hold into ready.
 
 ## Try it on Acme
 
@@ -46,12 +46,12 @@ Step 03 (Build) of the Landing Loop.
 
 | Reads | Writes |
 |---|---|
-| The landing brief the record names, parsed by the Leader Report's `landing_brief.py` (vendored byte-identical) with its own completeness check | The `release` key of `landing/<bet>.json`, and no other key |
-| The record's `spec` key: each hold spec-auditor raised closes only when the check here that tests the same thing is ready | One HTML page in the Leader Report style, and its Markdown twin |
+| The landing brief the project file names, parsed by the Leader Report's `landing_brief.py` (vendored byte-identical) with its own completeness check | The `release` key of `landing/<bet>.json`, and no other key |
+| The project file's `spec` key: each hold spec-auditor raised closes only when the check here that tests the same thing is ready | One HTML page in the Leader Report style, and its Markdown twin |
 | CI checks, commit statuses, branch protection and open bugs, live through `gh` (`from_gh.py`); CSV exports as the fallback | `readiness.json`, which `validate.py` checks a release note against |
 | `release.json` (owners, rollback, waivers, policy), `flags.csv` and, for a model call, `evals.csv` | |
 
-It reads no key later in the record order. The words are this check's own: **ready to ship** or **hold**, for each check and for the release. Landed, watch and stalled are the bet's status, and only did-it-land sets them after launch.
+It reads no key that comes after `release` in the project file. The words are this check's own: **ready to ship** or **hold**, for each check and for the release. Landed, watch and stalled are the project's status, and only did-it-land sets them after launch.
 
 | Check | Ready to ship when |
 |---|---|
@@ -63,18 +63,18 @@ It reads no key later in the record order. The words are this check's own: **rea
 | Evals | When the brief's line is a model call: every eval has enough cases, ran this week on the release commit, and passed at least the cases its threshold needs |
 | Spec | Every hold from spec-auditor is closed by a ready check here |
 
-## The record key
+## The project file key
 
 ```json
 {
   "release": {
-    "tool": "release-readiness 0.3.1",
+    "tool": "release-readiness 0.3.2",
     "as_of": "2026-09-05",
     "release": "Acme quote drafting v1.0",
     "commit": "5e1c0a9d3b72f4e8",
     "readiness": "ready to ship",
     "counts": {
-      "ready": {"value": 6, "unit": "checks ready to ship", "source": "release-readiness 0.3.1: count of the checks above; examples/acme/inputs/release.json",
+      "ready": {"value": 6, "unit": "checks ready to ship", "source": "release-readiness 0.3.2: count of the checks above; examples/acme/inputs/release.json",
                 "window": {"from": "2026-09-05", "to": "2026-09-05"}, "as_of": "2026-09-05"}
     },
     "checks": [
@@ -92,8 +92,8 @@ It reads no key later in the record order. The words are this check's own: **rea
 
 ## Limits
 
-- It says whether this commit is ready to ship, not whether the bet will work. did-it-land reads that after launch.
-- The eval gate records cases run, passed and needed at release. The pass rate of record is eval-kit's `evals` key, which comes later in the loop.
+- It says whether this commit is ready to ship, not whether the project will work. did-it-land reads that after launch.
+- The eval gate records cases run, passed and needed at release. The pass rate that counts is eval-kit's `evals` key, which comes later in the loop.
 - Flags, the rollback plan and eval results come from files you give it. No Leader Report collector reads check runs or bug severity at a commit, so `from_gh.py` is this skill's own reader, and other trackers come in as CSV.
 - A spec hold with no matching release check (a missing problem statement, say) stays open until spec-auditor passes the spec.
 

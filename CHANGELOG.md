@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.2, 2026-11-27
+
+- The page's picture is now the scorecard, in the grammar of the outcome scorecard on dacard.ai/update: one frame of HTML rows split by hairlines. The first row is a share bar of the checks that are ready ("6 of 7 ready", with the call's word); then one row per check in the order they run, each with its figure and its word: hold in ink, ready to ship muted, as text. The waived check carries the person who OK'd it in brass (a person mark and the role, no box) and the date the waiver runs out on its figure line ("2 major open · until 2026-09-19"). The aria-label is the call. Labels and words render 12px Geist Mono, names 14px Geist; no text in any SVG, no viewBox, no boxed chip. The row of gates (wide and tall SVGs) and its boxed panel are gone, and the check word under the lede is text, not a chip.
+- svgkit 1.2.0, vendored byte-identical from landing-loop 78784ef (the commit that last changed `tools/svgkit.py`; rollout recipe at c6c47e7) and pinned in `VENDORED.json`.
+- Tests copied from the rollout recipe: no text inside an SVG, no scaled picture, only the 12px and 14px sizes in the frame, no box in the frame and no chip before the engineers' fold, no legacy svgkit primitive (rendered with DeprecationWarning as an error), one frame with the share row and one row per check with each figure line printed exactly, brass only on the waiver's approver, the aria-label equal to the call, and nothing drawn that the page does not print.
+- Plain words in the README and SKILL.md: project, the project file, and the landing brief defined once as a one-page plan: what good looks like, by when, at what cost. SKILL.md tells Claude to use the user's own word if they say bet. Keys, file names and flags (`--bet`) are unchanged.
+
 ## 0.3.1, 2026-11-27
 
 - The HTML page follows the Landing Loop sample anatomy: the shared header (mark, DACARD, skill, date, version, blue Illustrative tag), the call as the heading ("Acme quote drafting v1.0 is ready to ship, with one waiver."), the check word, the signature picture, one next step with the brief's decider in brass and a due date, then every check beside the waiver, the build plan holds, the plan behind the release and what is worth knowing, in two columns. Check ids, stored labels and reasons, notes as computed, the record key, exit codes and the evidence ledger fold under "For your engineers".

@@ -1,6 +1,6 @@
 [project]
 name = "release-readiness"
-version = "0.3.1"
+version = "0.3.2"
 description = "A Claude skill that says whether one release is ready to ship or must hold, step 03 of the Landing Loop."
 requires-python = ">=3.11"
 # Standard library only, on purpose: the scripts run inside sandboxes that cannot install packages.

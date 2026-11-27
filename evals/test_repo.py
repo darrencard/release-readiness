@@ -106,14 +106,14 @@ class Story(unittest.TestCase):
 
 
 class Versions(unittest.TestCase):
-    def test_every_version_field_is_0_3_1(self) -> None:
+    def test_every_version_field_is_0_3_2(self) -> None:
         plugin = json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))["version"]
         project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
         skill = re.search(r'version: "([^"]+)"', (SKILL / "SKILL.md").read_text(encoding="utf-8")).group(1)
-        self.assertEqual({plugin, project, skill, readiness.VERSION}, {"0.3.1"})
+        self.assertEqual({plugin, project, skill, readiness.VERSION}, {"0.3.2"})
 
     def test_the_changelog_has_a_dated_entry_for_this_version(self) -> None:
-        self.assertIn("## 0.3.1, 2026-11-27", (ROOT / "CHANGELOG.md").read_text(encoding="utf-8"))
+        self.assertIn("## 0.3.2, 2026-11-27", (ROOT / "CHANGELOG.md").read_text(encoding="utf-8"))
 
 
 class Vendored(unittest.TestCase):
@@ -126,7 +126,7 @@ class Vendored(unittest.TestCase):
 
     def test_svgkit_matches_its_landing_loop_pin(self) -> None:
         pin = json.loads((SKILL / "VENDORED.json").read_text(encoding="utf-8"))["landing-loop"]
-        self.assertEqual(pin["commit"], "5d01756d08ab3eb92b457c3286729791df6bcf5f")
+        self.assertEqual(pin["commit"], "78784efd2ecd5282f6ec264e545ce2075e459be2")
         self.assertEqual(set(pin["files"]), {"scripts/vendor/svgkit.py"})
         for rel, info in pin["files"].items():
             digest = hashlib.sha256((SKILL / rel).read_bytes()).hexdigest()
@@ -149,7 +149,7 @@ class Readme(unittest.TestCase):
 
     def test_the_sections_come_in_the_loop_order(self) -> None:
         heads = [h for h in re.findall(r"^## (.+)$", self.text, re.M)]
-        want = ["Try it on Acme", "Install", "Reads and writes", "The record key", "Limits"]
+        want = ["Try it on Acme", "Install", "Reads and writes", "The project file key", "Limits"]
         self.assertEqual([h for h in heads if h in want], want)
         self.assertLess(self.text.index("```text"), self.text.index("## Try it on Acme"))
 
@@ -163,7 +163,7 @@ class Readme(unittest.TestCase):
         self.assertIn("MIT", self.text)
 
     def test_the_json_example_is_the_sample_key_shape(self) -> None:
-        block = self.text.split("## The record key", 1)[1].split("```json", 1)[1].split("```", 1)[0]
+        block = self.text.split("## The project file key", 1)[1].split("```json", 1)[1].split("```", 1)[0]
         example = json.loads(block)
         sample = json.loads((SAMPLE / "landing" / "quote-drafting.json").read_text(encoding="utf-8"))["release"]
         self.assertLessEqual(set(example["release"]), set(sample))
