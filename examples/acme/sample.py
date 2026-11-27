@@ -21,6 +21,9 @@ import sys
 import tempfile
 from pathlib import Path
 
+if sys.version_info < (3, 11):  # noqa: UP036  (say so plainly on an old Python, before reading or writing anything)
+    sys.exit("release-readiness needs Python 3.11 or later; try python3.12.")
+
 ROOT = Path(__file__).resolve().parents[2]
 HERE = Path("examples/acme")
 sys.path.insert(0, str(ROOT / "skills" / "release-readiness" / "scripts"))

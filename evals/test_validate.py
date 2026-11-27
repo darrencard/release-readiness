@@ -20,9 +20,9 @@ from validate import check
 
 HELD_DRAFT = """Invoice Chaser 1.0 holds as of 2026-11-20: 3 of 6 checks are ready to ship.
 
-- CI: integration-tests is failing. Invoicing squad tech lead owns it.
-- Bugs: 1 critical bug is open (#2210). Invoicing squad lead owns it.
-- Evals: chase-message-tone passed 182 of 200 cases; its threshold needs 190. Quoting squad ML engineer owns it.
+- CI: integration-tests is failing. Tech lead, Quoting squad owns it.
+- Bugs: 1 critical bug is open (#2210). Lead, Quoting squad owns it.
+- Evals: chase-message-tone passed 182 of 200 cases; its threshold needs 190. Tech lead, Quoting squad owns it.
 
 It is not ready to ship until all three are fixed.
 """
@@ -55,8 +55,14 @@ class Validate(unittest.TestCase):
         self.assertEqual(check(self.held, HELD_DRAFT + "We are not ready to release. It isn't cleared for launch."), [])
 
     def test_dropping_a_held_check_or_its_owner_is_blocked(self) -> None:
-        draft = HELD_DRAFT.replace("- Evals: chase-message-tone passed 182 of 200 cases; its threshold needs 190. Quoting squad ML engineer owns it.\n", "")
+        # The bugs line is the only one that names its owner, Lead, Quoting squad.
+        draft = HELD_DRAFT.replace("- Bugs: 1 critical bug is open (#2210). Lead, Quoting squad owns it.\n", "")
         self.assertEqual(sorted(rules(check(self.held, draft))), ["held-check-missing", "owner-missing"])
+
+    def test_a_longer_owner_name_does_not_name_a_shorter_one(self) -> None:
+        # "Tech lead, Quoting squad" contains "Lead, Quoting squad"; only the tech lead is named here.
+        draft = HELD_DRAFT.replace("Lead, Quoting squad owns it.", "The squad owns it.")
+        self.assertIn("owner-missing", rules(check(self.held, draft)))
 
     def test_an_invented_number_is_blocked(self) -> None:
         errors = check(self.held, HELD_DRAFT + "Tone should reach 98% by Friday.")

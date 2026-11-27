@@ -27,6 +27,9 @@ import re
 import sys
 from pathlib import Path
 
+if sys.version_info < (3, 11):  # noqa: UP036  (say so plainly on an old Python, before reading or writing anything)
+    sys.exit("release-readiness needs Python 3.11 or later; try python3.12.")
+
 GO_PATTERNS = [
     r"\bready to (?:ship|release|launch|go|deploy)\b",
     r"\bready for (?:release|launch|production|ga)\b",
@@ -67,6 +70,16 @@ def go_claims(text: str) -> list[str]:
     return hits
 
 
+def names_owner(lower: str, owner: str, d: dict) -> bool:
+    """True when the draft names this owner on its own. A longer owner name that contains it
+    ("Tech lead, Quoting squad" holds "Lead, Quoting squad") is taken out first, so it does not count."""
+    owner = owner.lower()
+    longer = {str(c.get("owner") or "").lower() for c in [*d["checks"], *d["holds"]]}
+    for other in sorted((o for o in longer if owner in o and o != owner), key=len, reverse=True):
+        lower = lower.replace(other, " ")
+    return owner in lower
+
+
 def allowed_numbers(d: dict) -> set[str]:
     texts = [str(d["ready"]), str(d["total"]), str(len(d["holds"])), str(len(d.get("waived") or [])), d["release"], d["commit"], d["as_of"]]
     texts += [w["expires"] for w in d.get("waived") or []]
@@ -95,7 +108,7 @@ def check(d: dict, draft: str) -> list[dict]:
         for o in d["holds"]:
             if not any(k in lower for k in KEYWORDS.get(o["id"], (o["id"],))) and o["label"].lower() not in lower:
                 errors.append({"rule": "held-check-missing", "detail": f"The draft does not name the held check: {o['label']}."})
-            if o["owner"].lower() not in lower:
+            if not names_owner(lower, o["owner"], d):
                 errors.append({"rule": "owner-missing", "detail": f"The draft does not name {o['owner']}, who owns: {o['label']}."})
     waived = d.get("waived") or []
     for w in waived:

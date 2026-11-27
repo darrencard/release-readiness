@@ -8,16 +8,16 @@
     "ci": "Tech lead, Quoting squad",
     "bugs": "Lead, Quoting squad",
     "flags": "Tech lead, Quoting squad",
-    "rollback": "Platform on-call lead",
+    "rollback": "Tech lead, Quoting squad",
     "brief": "Head of Product, Quoting squad",
-    "evals": "Quoting squad ML engineer",
+    "evals": "Tech lead, Quoting squad",
     "spec": "Lead, Quoting squad"
   },
   "rollback": {
     "plan": "Turn off quote_drafting. Quotes fall back to the manual form; no data to migrate.",
-    "owner": "Platform on-call lead",
+    "owner": "Tech lead, Quoting squad",
     "tested_on": "2026-08-28",
-    "trigger": "Draft acceptance below 15% for a day, or any draft price not from the price book"
+    "trigger": "Wrong-price quotes pass 2% of quotes sent in a day, the trigger set on 2026-08-10 (D-0004)"
   },
   "waivers": [
     {

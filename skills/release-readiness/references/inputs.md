@@ -20,9 +20,9 @@ The bet's landing brief, in the Linear project template, passed as `--brief brie
   "commit": "5e1c0a9d3b72f4e8",
   "illustrative": false,
   "ai_feature": false,
-  "owners": {"ci": "Tech lead, Quoting squad", "bugs": "Lead, Quoting squad", "rollback": "Platform on-call lead", "evals": "Quoting squad ML engineer"},
-  "rollback": {"plan": "Turn off quote_drafting. Quotes fall back to the manual form.", "owner": "Platform on-call lead",
-               "tested_on": "2026-08-28", "trigger": "Draft acceptance below 15% for a day"},
+  "owners": {"ci": "Tech lead, Quoting squad", "bugs": "Lead, Quoting squad", "rollback": "Tech lead, Quoting squad", "evals": "Tech lead, Quoting squad"},
+  "rollback": {"plan": "Turn off quote_drafting. Quotes fall back to the manual form.", "owner": "Tech lead, Quoting squad",
+               "tested_on": "2026-08-28", "trigger": "Wrong-price quotes pass 2% of quotes sent in a day"},
   "waivers": [{"check": "bugs", "reason": "Both open major bugs change the draft's wording only.",
                "approved_by": "Head of Product, Quoting squad", "expires": "2026-09-19"}],
   "policy": {

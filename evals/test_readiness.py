@@ -51,10 +51,10 @@ class AcmeFixtures(Base):
         self.assertEqual(d["readiness"], "hold")
         self.assertEqual((d["ready"], d["total"]), (3, 6))
         self.assertEqual(self.open_ids(d), ["ci", "bugs", "evals"])
-        self.assertEqual([o["owner"] for o in d["holds"]], ["Invoicing squad tech lead", "Invoicing squad lead", "Quoting squad ML engineer"])
+        self.assertEqual([o["owner"] for o in d["holds"]], ["Tech lead, Quoting squad", "Lead, Quoting squad", "Tech lead, Quoting squad"])
         reasons = " ".join(r for o in d["holds"] for r in o["reasons"])
         self.assertIn("integration-tests", reasons)
-        self.assertIn("#2210 (Invoicing squad engineer)", reasons)
+        self.assertIn("#2210 (Tech lead, Quoting squad)", reasons)
         self.assertIn("182 of 200 cases passed; its 95% threshold needs 190", reasons)
 
     def test_the_cli_exits_0_on_ready_and_1_on_hold_and_writes_three_files(self) -> None:
@@ -104,7 +104,7 @@ class AllOrNothing(Base):
 
     def test_one_held_check_holds_the_release(self) -> None:
         fx = self.fixture("acme-ready")
-        edit_release(fx, rollback={"plan": "Turn the flag off.", "owner": "Platform on-call lead", "tested_on": "", "trigger": "Errors above 1%"})
+        edit_release(fx, rollback={"plan": "Turn the flag off.", "owner": "Tech lead, Quoting squad", "tested_on": "", "trigger": "Errors above 1%"})
         d = self.call(fx)
         self.assertEqual((d["readiness"], d["ready"], d["total"]), ("hold", 5, 6))
         self.assertEqual(self.open_ids(d), ["rollback"])
@@ -180,7 +180,7 @@ class Bugs(Base):
 
     def test_a_major_bug_over_the_limit_blocks(self) -> None:
         fx = self.fixture("acme-ready")
-        rows = "".join(f"{i},Bug {i},major,open,Quoting squad engineer\n" for i in range(3))
+        rows = "".join(f'{i},Bug {i},major,open,"Tech lead, Quoting squad"\n' for i in range(3))
         self.write(fx / "bugs.csv", "id,title,severity,state,owner\n" + rows)
         d = self.call(fx)
         self.assertIn("3 open major bugs against a limit of 2", d["holds"][0]["reasons"][0])
@@ -189,12 +189,12 @@ class Bugs(Base):
 class Flags(Base):
     def test_a_flag_with_no_off_switch_blocks(self) -> None:
         fx = self.fixture("acme-ready")
-        self.write(fx / "flags.csv", "flag,rollout_percent,off_switch,owner\nquote_v24,10,no,\"Tech lead, Quoting squad\"\n")
+        self.write(fx / "flags.csv", 'flag,rollout_percent,off_switch,owner\nquote_v24,10,no,"Tech lead, Quoting squad"\n')
         self.assertEqual(self.open_ids(self.call(fx)), ["flags"])
 
     def test_a_flag_above_the_rollout_limit_blocks(self) -> None:
         fx = self.fixture("acme-ready")
-        self.write(fx / "flags.csv", "flag,rollout_percent,off_switch,owner\nquote_v24,50,yes,\"Tech lead, Quoting squad\"\n")
+        self.write(fx / "flags.csv", 'flag,rollout_percent,off_switch,owner\nquote_v24,50,yes,"Tech lead, Quoting squad"\n')
         d = self.call(fx)
         self.assertIn("starts at 50%, above the 25% limit", d["holds"][0]["reasons"][0])
 
@@ -212,13 +212,13 @@ class Flags(Base):
 class Rollback(Base):
     def test_a_stale_rehearsal_blocks(self) -> None:
         fx = self.fixture("acme-ready")
-        edit_release(fx, rollback={"plan": "Flag off.", "owner": "Platform on-call lead", "tested_on": "2026-10-05", "trigger": "Errors above 1%"})
+        edit_release(fx, rollback={"plan": "Flag off.", "owner": "Tech lead, Quoting squad", "tested_on": "2026-10-05", "trigger": "Errors above 1%"})
         d = self.call(fx)
         self.assertIn("46 days ago, beyond the 30-day limit", d["holds"][0]["reasons"][0])
 
     def test_a_rehearsal_after_the_as_of_date_blocks(self) -> None:
         fx = self.fixture("acme-ready")
-        edit_release(fx, rollback={"plan": "Flag off.", "owner": "Platform on-call lead", "tested_on": "2026-12-01", "trigger": "Errors above 1%"})
+        edit_release(fx, rollback={"plan": "Flag off.", "owner": "Tech lead, Quoting squad", "tested_on": "2026-12-01", "trigger": "Errors above 1%"})
         self.assertEqual(self.open_ids(self.call(fx)), ["rollback"])
 
     def test_no_plan_and_no_owner_are_both_named(self) -> None:

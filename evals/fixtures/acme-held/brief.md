@@ -13,4 +13,4 @@ Illustrative sample brief for Acme, an invented company.
 - **Tokens per task:** 4,000
 - **Price per token:** $0.000003
 - **The line:** model call. The chaser drafts the message; who gets chased and when stays in fixed code.
-- **Decides the next step:** Head of Product, Payments squad
+- **Decides the next step:** Head of Product, Quoting squad

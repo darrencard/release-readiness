@@ -29,6 +29,9 @@ import subprocess  # noqa: S404  (gh is called with a fixed argument list, never
 import sys
 from pathlib import Path
 
+if sys.version_info < (3, 11):  # noqa: UP036  (say so plainly on an old Python, before reading or writing anything)
+    sys.exit("release-readiness needs Python 3.11 or later; try python3.12.")
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from readiness import normalise_severity  # noqa: E402  (the shared severity map, beside this file)

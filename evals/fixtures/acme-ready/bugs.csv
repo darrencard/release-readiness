@@ -1,4 +1,4 @@
 id,title,severity,state,owner
-1412,Quote PDF footer wraps on A5 paper,minor,open,Quoting squad engineer
-1420,Draft quote shows tax line twice for zero-rated items,major,open,Quoting squad engineer
-1388,Assistant suggests a line item from a deleted price list,critical,closed,Quoting squad ML engineer
+1412,Quote PDF footer wraps on A5 paper,minor,open,"Tech lead, Quoting squad"
+1420,Draft quote shows tax line twice for zero-rated items,major,open,"Tech lead, Quoting squad"
+1388,Assistant suggests a line item from a deleted price list,critical,closed,"Tech lead, Quoting squad"

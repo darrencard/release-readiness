@@ -1,20 +1,20 @@
 {
   "name": "Acme Invoice Chaser 1.0",
   "illustrative": true,
-  "owner": "Invoicing squad lead",
+  "owner": "Lead, Quoting squad",
   "as_of": "2026-11-20",
   "commit": "9b81d07a55e2",
   "ai_feature": true,
   "owners": {
-    "ci": "Invoicing squad tech lead",
-    "bugs": "Invoicing squad lead",
-    "flags": "Invoicing squad tech lead",
-    "rollback": "Platform on-call lead",
-    "evals": "Quoting squad ML engineer"
+    "ci": "Tech lead, Quoting squad",
+    "bugs": "Lead, Quoting squad",
+    "flags": "Tech lead, Quoting squad",
+    "rollback": "Tech lead, Quoting squad",
+    "evals": "Tech lead, Quoting squad"
   },
   "rollback": {
     "plan": "Turn off invoice_chaser and stop the reminder queue, then redeploy release 3.8.2.",
-    "owner": "Platform on-call lead",
+    "owner": "Tech lead, Quoting squad",
     "tested_on": "2026-11-10",
     "method": "flag off, drain queue, redeploy",
     "trigger": "Any reminder sent after an invoice is marked paid, or the complaint rate on reminders above 0.5%"

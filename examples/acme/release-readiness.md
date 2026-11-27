@@ -19,9 +19,9 @@ Checked 2026-09-05. Commit 5e1c0a9d3b72f4e8. Release owner: Lead, Quoting squad.
 | CI passes on the release commit | ready to ship | Tech lead, Quoting squad |
 | Open bugs within the severity limits | hold, waived | Lead, Quoting squad |
 | Every change behind a flag with an off switch | ready to ship | Tech lead, Quoting squad |
-| Rollback written, owned, rehearsed, with a trigger threshold | ready to ship | Platform on-call lead |
+| Rollback written, owned, rehearsed, with a trigger threshold | ready to ship | Tech lead, Quoting squad |
 | Landing brief complete, and its date still ahead | ready to ship | Head of Product, Quoting squad |
-| Eval gate passes on the release commit | ready to ship | Quoting squad ML engineer |
+| Eval gate passes on the release commit | ready to ship | Tech lead, Quoting squad |
 | Spec holds from spec-auditor are closed | ready to ship | Lead, Quoting squad |
 
 ## Spec holds from 02 Spec

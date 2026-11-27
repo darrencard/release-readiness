@@ -1,5 +1,5 @@
 check,conclusion,required,commit,url,owner
-unit-tests,success,yes,9b81d07a55e2,,Invoicing squad tech lead
-integration-tests,failure,yes,9b81d07a55e2,,Invoicing squad tech lead
-lint,success,yes,9b81d07a55e2,,Invoicing squad tech lead
-security-scan,success,yes,9b81d07a55e2,,Security lead
+unit-tests,success,yes,9b81d07a55e2,,"Tech lead, Quoting squad"
+integration-tests,failure,yes,9b81d07a55e2,,"Tech lead, Quoting squad"
+lint,success,yes,9b81d07a55e2,,"Tech lead, Quoting squad"
+security-scan,success,yes,9b81d07a55e2,,"Tech lead, Quoting squad"

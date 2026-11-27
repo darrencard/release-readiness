@@ -2,4 +2,4 @@ id,title,severity,state,owner
 3101,Draft repeats a line item when a job has two visits,major,open,"Tech lead, Quoting squad"
 3104,Draft uses the trading name where the quote needs the legal name,major,open,"Tech lead, Quoting squad"
 3107,Draft preview cuts off the last line on a small phone,minor,open,"Tech lead, Quoting squad"
-3092,Draft suggests an item from a deleted price list,critical,closed,Quoting squad ML engineer
+3092,Draft suggests an item from a deleted price list,critical,closed,"Tech lead, Quoting squad"

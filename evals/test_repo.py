@@ -7,6 +7,7 @@ Usage:
 
 from __future__ import annotations
 
+import csv
 import hashlib
 import json
 import re
@@ -53,6 +54,53 @@ class Wording(unittest.TestCase):
         self.assertTrue(json.loads((SAMPLE / "inputs" / "release.json").read_text(encoding="utf-8"))["illustrative"])
         self.assertIn("Illustrative", (SAMPLE / "briefs" / "quote-drafting.md").read_text(encoding="utf-8"))
         self.assertIn('<span class="ill">Illustrative</span>', (SAMPLE / "release-readiness.html").read_text(encoding="utf-8"))
+
+
+class Skill(unittest.TestCase):
+    def test_the_description_fits_the_skill_format(self) -> None:
+        text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+        description = re.search(r"^description: (.*)$", text, re.M).group(1)
+        self.assertLess(len(description), 1024)
+
+    def test_every_entry_script_checks_python_before_anything_else(self) -> None:
+        vendored = set(json.loads((SKILL / "VENDORED.json").read_text(encoding="utf-8"))["files"])
+        scripts = [p for p in (SKILL / "scripts").glob("*.py") if f"scripts/{p.name}" not in vendored] + [SAMPLE / "sample.py"]
+        for path in sorted(scripts):
+            text = path.read_text(encoding="utf-8")
+            if '__name__ == "__main__"' not in text:
+                continue
+            with self.subTest(script=path.name):
+                check = text.find("sys.version_info < (3, 11)")
+                self.assertGreater(check, 0)
+                self.assertIn("try python3.12", text)
+                body = text[text.find('"""', 3) + 3 :]
+                for io_call in ("read_text(", "write_text(", "open("):
+                    first = text.find(io_call, len(text) - len(body))
+                    self.assertTrue(first == -1 or first > check, f"{path.name}: {io_call} before the version check")
+
+
+class Story(unittest.TestCase):
+    """The Acme sample tells the same story as the rest of the loop and names only the Acme org chart's roles."""
+
+    ROLES = {"Head of Product, Quoting squad", "Lead, Quoting squad", "Tech lead, Quoting squad", "Product manager, Quoting squad"}
+
+    def test_the_rollback_trigger_is_the_one_decided_for_quote_drafting(self) -> None:
+        plan = json.loads((SAMPLE / "inputs" / "release.json").read_text(encoding="utf-8"))["rollback"]
+        # decision-record's D-0004, decided 2026-08-10 after the spec hold of 2026-08-03: wrong-price quotes over 2%, owned by the tech lead.
+        self.assertIn("Wrong-price quotes pass 2%", plan["trigger"])
+        self.assertEqual(plan["owner"], "Tech lead, Quoting squad")
+
+    def test_only_the_acme_org_chart_roles_own_or_approve(self) -> None:
+        for folder in (SAMPLE / "inputs", ROOT / "evals" / "fixtures" / "acme-ready", ROOT / "evals" / "fixtures" / "acme-held"):
+            release = json.loads((folder / "release.json").read_text(encoding="utf-8"))
+            people = {release["owner"], *release["owners"].values(), release["rollback"]["owner"], *(w["approved_by"] for w in release.get("waivers", []))}
+            for name in sorted(folder.glob("*.csv")):
+                with name.open(encoding="utf-8", newline="") as fh:
+                    people |= {row["owner"] for row in csv.DictReader(fh) if row.get("owner")}
+            with self.subTest(folder=folder.name):
+                self.assertLessEqual(people, self.ROLES)
+        page = (SAMPLE / "release-readiness.md").read_text(encoding="utf-8")
+        self.assertNotRegex(page, r"(?i)on-call|ML engineer|VP Product|Invoicing squad")
 
 
 class Versions(unittest.TestCase):

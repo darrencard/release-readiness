@@ -9,12 +9,12 @@
     "ci": "Tech lead, Quoting squad",
     "bugs": "Lead, Quoting squad",
     "flags": "Tech lead, Quoting squad",
-    "rollback": "Platform on-call lead",
-    "evals": "Quoting squad ML engineer"
+    "rollback": "Tech lead, Quoting squad",
+    "evals": "Tech lead, Quoting squad"
   },
   "rollback": {
     "plan": "Turn off quote_assistant_v24, then redeploy release 2.3.6 from the release branch.",
-    "owner": "Platform on-call lead",
+    "owner": "Tech lead, Quoting squad",
     "tested_on": "2026-11-12",
     "method": "flag off, then redeploy",
     "trigger": "Quote acceptance rate drops more than 5 points below 2.3 for 2 hours, or any invented price in the eval sample"

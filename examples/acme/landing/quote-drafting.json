@@ -300,7 +300,7 @@
         "id": "rollback",
         "label": "Rollback written, owned, rehearsed, with a trigger threshold",
         "readiness": "ready to ship",
-        "owner": "Platform on-call lead",
+        "owner": "Tech lead, Quoting squad",
         "reasons": [],
         "figures": {
           "test_age_days": {
@@ -338,7 +338,7 @@
         "id": "evals",
         "label": "Eval gate passes on the release commit",
         "readiness": "ready to ship",
-        "owner": "Quoting squad ML engineer",
+        "owner": "Tech lead, Quoting squad",
         "reasons": [],
         "figures": {
           "1.cases": {
