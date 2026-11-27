@@ -168,6 +168,19 @@ class Sample(unittest.TestCase):
         waived = re.search(r'<span class="sc-n">Open bugs</span>.*?</div>', frame).group(0)
         self.assertIn('<span class="sc-w ink">hold</span><span class="sc-o">', waived)
 
+    def test_the_share_prints_in_the_frame_head_and_stays_the_first_row(self) -> None:
+        frame = svgkit.frames_in((SAMPLE / "release-readiness.html").read_text(encoding="utf-8"))[0]
+        self.assertIn("<span>Checks</span><span>6 of 7 ready</span>", frame.split('<div class="sc-b">', 1)[0])
+        self.assertIn('<span class="sc-n">All checks</span><span class="sc-p"><svg class="sc-sh"', frame.split('<div class="sc-r">')[1])
+
+    def test_a_row_without_a_picture_gives_its_name_the_picture_column(self) -> None:
+        css = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8").split("<style>", 1)[1].split("</style>", 1)[0]
+        self.assertIn("@container sc (min-width:800px){.scg .sc-r:has(>.sc-p:empty)>.sc-n{grid-column:1/3}.scg .sc-r:has(>.sc-p:empty)>.sc-p{display:none}}", css)
+
+    def test_the_figure_column_prints_in_one_case(self) -> None:
+        css = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8").split("<style>", 1)[1].split("</style>", 1)[0]
+        self.assertIn(".scg .sc-l{text-transform:uppercase;letter-spacing:.06em}", css)
+
     def test_no_text_inside_a_picture_and_no_picture_scales(self) -> None:
         page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
         self.assertEqual(svgkit.svgs_with_text(page), [])

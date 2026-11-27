@@ -42,6 +42,8 @@ NAME = "Release readiness"  # the page prints its plain name; the code name sits
 MIN_FONT_PX = 11  # no text on the page prints smaller, at any width
 
 # Layout for this page only. Everything else comes from the template's stylesheet and svgkit.CSS.
+# In the scorecard, a row with no picture gives its name the picture column too, so names stay on one line, and the
+# figure column prints in one case, numerals and capitals, as /update does.
 PAGE_CSS = """
 main.solo{margin-left:0}
 .solo .slide{min-height:0}
@@ -92,6 +94,8 @@ main.solo{margin-left:0}
 .stack table,.stack tbody,.stack tr,.stack td{display:block}.stack tr:first-child{display:none}.stack tr{padding:10px 16px;border-bottom:1px solid var(--line)}
 .stack td{border:0;padding:3px 0;display:grid;grid-template-columns:96px 1fr;gap:12px}.stack td.num{text-align:left;white-space:normal}
 .stack td::before{content:attr(data-l);font:400 11px/20px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--t3)}}
+.scg .sc-l{text-transform:uppercase;letter-spacing:.06em}
+@container sc (min-width:800px){.scg .sc-r:has(>.sc-p:empty)>.sc-n{grid-column:1/3}.scg .sc-r:has(>.sc-p:empty)>.sc-p{display:none}}
 """
 
 
@@ -226,7 +230,7 @@ def scorecard(d: dict) -> str:
     caption = "The first row shows the share of checks that are ready to ship. Then one row per check, in the order they run."
     if d["waived"]:
         caption += " A waived check names the person who OK'd it and the date the waiver runs out."
-    return sk.sc_frame(rows, label=readiness.verdict(d), title="Checks", head=["Check", "", "Found", "Result"], caption=caption, illustrative=d["illustrative"])
+    return sk.sc_frame(rows, label=readiness.verdict(d), title="Checks", legend=f"<span>{d['ready']} of {d['total']} ready</span>", head=["Check", "", "Found", "Result"], caption=caption, illustrative=d["illustrative"])
 
 
 # The words
