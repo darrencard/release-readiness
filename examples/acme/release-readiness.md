@@ -84,7 +84,7 @@ Spec holds as stored: rollback closed by rollback; eval-plan closed by evals.
 | evals.2.needed | no-invented-prices: cases its 100% threshold needs | 150 cases | 2026-09-04 | examples/acme/inputs/evals.csv |
 | evals.total | Evals in the gate | 2 evals | 2026-09-05 | examples/acme/inputs/evals.csv |
 | evals.passing | Evals passing the gate | 2 evals | 2026-09-05 | examples/acme/inputs/evals.csv |
-| spec.holds | Holds spec-auditor raised | 2 findings | 2026-08-03 to 2026-09-05 | examples/acme/landing/quote-drafting.json, spec key (spec-auditor 0.3.4, 2026-08-03) |
-| spec.closed | Spec holds closed by a ready check | 2 findings | 2026-08-03 to 2026-09-05 | examples/acme/landing/quote-drafting.json, spec key (spec-auditor 0.3.4, 2026-08-03) |
+| spec.holds | Holds spec-auditor raised | 2 findings | 2026-08-03 to 2026-09-05 | examples/acme/landing/quote-drafting.json, spec key (spec-auditor 0.3.5, 2026-08-03) |
+| spec.closed | Spec holds closed by a ready check | 2 findings | 2026-08-03 to 2026-09-05 | examples/acme/landing/quote-drafting.json, spec key (spec-auditor 0.3.5, 2026-08-03) |
 
 Computed by release-readiness 0.3.4. Every figure comes from the source named beside it.
