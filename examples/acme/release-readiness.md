@@ -45,6 +45,7 @@ Ship it, then fix what the waiver covers (open bugs) before it runs out on 2026-
 
 ## For your engineers
 
+- Skill: release-readiness 0.3.1.
 - Commit 5e1c0a9d3b72f4e8.
 - Check ids: ci, bugs, flags, rollback, brief, evals, spec.
 - Writes the `release` key of `landing/quote-drafting.json` and no other key.

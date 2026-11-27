@@ -172,6 +172,37 @@ class Sample(unittest.TestCase):
         self.assertTrue(label.endswith("must hold: 3 of 6 checks are ready to ship, and code checks, open bugs and quality tests hold."), label)
         self.assertEqual(render_html.gates(held, "wide").count('fill="var(--t1)"'), 3, "one solid gate per held check")
 
+    def test_no_text_smaller_than_11px(self) -> None:
+        page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
+        css = "".join(re.findall(r"<style>(.*?)</style>", page, re.S))
+        decls = re.findall(r"font(?:-size)?:[^;}]*", css)
+        self.assertTrue(decls)
+        sizes = [float(n) for d in decls for n in re.findall(r"(?<![/\d.])(\d+(?:\.\d+)?)px", d)]
+        self.assertGreaterEqual(min(sizes), 11, "a font size below 11px")
+        self.assertNotRegex(page, r'font-size="(\d|10)(\.\d+)?"', "an SVG label below 11px")
+        template = render_html.TEMPLATE.read_text(encoding="utf-8")
+        self.assertIn("font:400 10px/16px var(--mono)", template, "the template stays as vendored; the page raises its sizes")
+
+    def test_header_prints_the_plain_name_and_the_fold_the_code_name(self) -> None:
+        page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
+        header = re.search(r'<header class="sk-hdr">.*?</header>', page, re.S).group(0)
+        self.assertIn("<span>Release readiness</span>", header)
+        public, fold = page.split("</style>", 1)[1].split("<summary>For your engineers</summary>", 1)
+        self.assertNotIn("release-readiness", public)
+        self.assertIn(f"Skill: <code>release-readiness</code> {readiness.VERSION}.", fold)
+        twin = (SAMPLE / "release-readiness.md").read_text(encoding="utf-8")
+        self.assertIn(f"- Skill: release-readiness {readiness.VERSION}.", twin.split("## For your engineers", 1)[1])
+
+    def test_no_internal_words_in_public_copy(self) -> None:
+        banned = re.compile(r"\b(records?|bets?|the bar|PRDs?|ARR|tokens?)\b", re.I)
+        page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
+        public = re.sub(r"<details><summary>For your engineers</summary>.*?</details>", " ", page.split("</style>", 1)[1], flags=re.S)
+        self.assertIsNone(banned.search(svgkit.page_text(public)), "internal word on the page")
+        for svg in svgkit.visuals_in(page):
+            self.assertIsNone(banned.search(" ".join(svgkit.texts_in(svg))), "internal word in the picture")
+        twin = (SAMPLE / "release-readiness.md").read_text(encoding="utf-8").split("## For your engineers", 1)[0]
+        self.assertIsNone(banned.search(twin), "internal word in the Markdown twin")
+
     def test_public_copy_uses_plain_words(self) -> None:
         page = (SAMPLE / "release-readiness.html").read_text(encoding="utf-8")
         twin = (SAMPLE / "release-readiness.md").read_text(encoding="utf-8")

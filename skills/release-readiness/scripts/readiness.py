@@ -918,7 +918,7 @@ def report(d: dict) -> str:
     if notes:
         lines += ["", "## Worth knowing", ""] + [f"- {cell(n)}" for n in notes]
     lines += ["", "## For your engineers", ""]
-    eng = [f"Commit {d['commit'] or 'not named'}.", f"Check ids: {', '.join(c['id'] for c in d['checks'])}."]
+    eng = [f"Skill: {TOOL}.", f"Commit {d['commit'] or 'not named'}.", f"Check ids: {', '.join(c['id'] for c in d['checks'])}."]
     if d["bet"]:
         eng.append(f"Writes the `release` key of `landing/{d['bet']}.json` and no other key.")
     eng.append("readiness.py exits 0 on ready to ship, 1 on hold and 2 when an input cannot be read, so it can gate a CI job.")

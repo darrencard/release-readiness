@@ -35,6 +35,8 @@ import svgkit as sk  # noqa: E402  (vendored, unchanged; see VENDORED.json)
 
 TEMPLATE = Path(__file__).resolve().parent.parent / "assets" / "vendor" / "template.html"
 STYLE = re.compile(r"<style>(.*?)</style>", re.S)
+NAME = "Release readiness"  # the page prints its plain name; the code name sits in the engineers' fold
+MIN_FONT_PX = 11  # no text on the page prints smaller, at any width
 
 # Layout for this page only. Everything else comes from the template's stylesheet and svgkit.CSS.
 PAGE_CSS = """
@@ -44,16 +46,16 @@ main.solo{margin-left:0}
 .solo h1{font-size:clamp(34px,4.6vw,60px);line-height:1;letter-spacing:-.04em;max-width:20ch;margin-bottom:20px}
 .solo .lede{margin-bottom:24px}
 .solo h2{margin-bottom:16px}
-.rw{display:inline-block;font:400 10px/16px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--t1);border:1px solid var(--line3);border-radius:3px;padding:1px 6px;white-space:nowrap}
+.rw{display:inline-block;font:400 11px/16px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--t1);border:1px solid var(--line3);border-radius:3px;padding:1px 6px;white-space:nowrap}
 .rw.hold{background:var(--t1);color:var(--bg);border-color:var(--t1)}
 .verdict{margin:0 0 20px}
 @media (min-width:1100px){.panel .sk{display:grid;grid-template-columns:720px minmax(0,1fr);gap:16px 40px;align-items:center}.panel .sk figcaption{margin-top:0;flex-direction:column;align-items:flex-start}}
 .panel{border:1px solid var(--line);border-radius:12px;background:var(--s1);padding:28px 28px 20px}
 .next{margin-top:28px;display:grid;grid-template-columns:200px minmax(0,1fr);gap:8px 32px;align-items:baseline;border:1px solid var(--brass);border-radius:12px;padding:20px 24px;background:var(--brass-bg)}
-.next>b{font:400 10px/22px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--brass)}
+.next>b{font:400 11px/22px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--brass)}
 .next p{margin:0;font-size:16px;line-height:1.5;color:var(--t1)}
 .next .who{display:flex;flex-wrap:wrap;gap:4px 24px;margin-top:10px;font:400 11.5px/16px var(--mono);color:var(--brass)}
-.next .who span::before{font-size:10px;letter-spacing:.1em;color:var(--t3);margin-right:8px}
+.next .who span::before{font-size:11px;letter-spacing:.1em;color:var(--t3);margin-right:8px}
 .next .who .o::before{content:"DECIDES"}.next .who .d::before{content:"DUE"}
 .cols{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:24px 56px;align-items:start}
 .cols h3{margin-bottom:8px}
@@ -62,18 +64,18 @@ main.solo{margin-left:0}
 .checks .nm{font-size:14px;line-height:1.45;color:var(--t1)}
 .checks .ev{grid-column:1;font-size:13px;line-height:1.5;color:var(--t2)}
 .checks .ev b{color:var(--t1);font-weight:500}
-.checks .ow{grid-column:1;font:400 10px/16px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--t3)}
+.checks .ow{grid-column:1;font:400 11px/16px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--t3)}
 .checks ul{grid-column:1;margin:2px 0 0;padding-left:16px;font-size:13px;line-height:1.5;color:var(--t2)}
 .checks .rw{grid-row:1;grid-column:2;justify-self:end;align-self:start}
 .wv{border-top:1px solid var(--line);padding:12px 0 4px}
 .wv p{margin:0 0 8px;font-size:13.5px;line-height:1.55;color:var(--t2)}
 .wv p b{color:var(--t1);font-weight:500}
 .wv .by{display:flex;flex-wrap:wrap;gap:4px 24px;font:400 11.5px/16px var(--mono);color:var(--brass)}
-.wv .by span::before{font-size:10px;letter-spacing:.1em;color:var(--t3);margin-right:8px}
+.wv .by span::before{font-size:11px;letter-spacing:.1em;color:var(--t3);margin-right:8px}
 .wv .by .a::before{content:"OK'D BY"}.wv .by .x::before{content:"UNTIL"}
 .plain{margin:0;padding:0;list-style:none}
 .plain li{border-top:1px solid var(--line);padding:11px 0;font-size:13px;line-height:1.5;color:var(--t2)}
-.plain li small{display:block;font:400 10px/16px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--t3);margin-top:2px}
+.plain li small{display:block;font:400 11px/16px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--t3);margin-top:2px}
 .side h3:not(:first-child){margin-top:28px}
 .sc-d{font-size:12.5px;line-height:1.5;color:var(--t3);margin:0 0 8px}
 .solo details{margin-top:4px}
@@ -85,15 +87,25 @@ main.solo{margin-left:0}
 ::selection{background:var(--t1);color:var(--bg)}
 :focus-visible{outline-color:var(--t1)}
 .foot{max-width:1120px;margin:0 auto;padding:28px 40px 64px;color:var(--t3);font-size:12px}
-@media (max-width:980px){.foot{padding:24px 16px 48px}.solo .slide.cover{padding-top:24px}.cols,.next{grid-template-columns:1fr}.panel{padding:20px 16px 16px}
+@media (max-width:980px){.foot{padding:24px 16px 48px}.solo .slide.cover{padding-top:24px}.cols,.next{grid-template-columns:1fr}.panel{padding:20px 0 16px;border-left:0;border-right:0;border-radius:0;background:none}
 .stack table,.stack tbody,.stack tr,.stack td{display:block}.stack tr:first-child{display:none}.stack tr{padding:10px 16px;border-bottom:1px solid var(--line)}
 .stack td{border:0;padding:3px 0;display:grid;grid-template-columns:96px 1fr;gap:12px}.stack td.num{text-align:left;white-space:normal}
-.stack td::before{content:attr(data-l);font:400 10px/20px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--t3)}}
+.stack td::before{content:attr(data-l);font:400 11px/20px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--t3)}}
 """
 
 
 def e(text: Any) -> str:
     return html.escape(str(text), quote=True)
+
+
+def floor_fonts(css: str) -> str:
+    """Every font size in the page's CSS at MIN_FONT_PX or more. The vendored template and svgkit stay byte-identical;
+    their smaller label sizes are raised here, as the page is written. A line height (after the slash) is left alone."""
+
+    def raise_px(decl: re.Match[str]) -> str:
+        return re.sub(r"(?<![/\d.])(\d+(?:\.\d+)?)px", lambda m: f"{MIN_FONT_PX}px" if float(m.group(1)) < MIN_FONT_PX else m.group(0), decl.group(0))
+
+    return re.sub(r"font(?:-size)?:[^;}]*", raise_px, css)
 
 
 def stylesheet() -> str:
@@ -323,7 +335,9 @@ def side(d: dict) -> str:
 
 
 def engineers(d: dict) -> str:
-    eng = [f"<p>Commit <code>{e(d['commit'] or 'not named')}</code>. Tool: {e(d['tool'])}.</p>"]
+    eng = [
+        f"<p>Skill: <code>{e(d['tool'].rsplit(' ', 1)[0])}</code> {e(d['tool'].rsplit(' ', 1)[-1])}. Commit <code>{e(d['commit'] or 'not named')}</code>.</p>"
+    ]
     t = Table(("Check id", "Label as stored", "Check word", "Reasons as computed"))
     for c in d["checks"]:
         t.row(("", f"<code>{e(c['id'])}</code>"), ("", e(c["label"])), ("", e(c["readiness"])), ("ex", "<br>".join(e(r) for r in c["reasons"]) or "none"))
@@ -352,7 +366,7 @@ def ledger(d: dict) -> str:
 
 
 def page(d: dict) -> str:
-    header = sk.page_header("release-readiness", date=d["as_of"], version=f"v{readiness.VERSION}", illustrative=d["illustrative"])
+    header = sk.page_header(NAME, date=d["as_of"], version=f"v{readiness.VERSION}", illustrative=d["illustrative"])
     pic = sk.figure(
         gates(d, "wide"),
         gates(d, "tall"),
@@ -377,7 +391,7 @@ def page(d: dict) -> str:
     title = f"Release readiness: {d['release']}"
     return (
         '<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-        f'<title>{e(title)}</title><style>{stylesheet()}{sk.CSS}{PAGE_CSS}</style></head><body><main class="solo">{cover}{detail}{more}'
+        f'<title>{e(title)}</title><style>{floor_fonts(stylesheet() + sk.CSS + PAGE_CSS)}</style></head><body><main class="solo">{cover}{detail}{more}'
         '<p class="foot">A release check says whether this version is ready to ship, not whether the project will work. '
         "did-it-land reads the number against the target after launch. Every figure is computed in code from the sources named.</p>"
         "</main></body></html>\n"
