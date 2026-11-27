@@ -101,4 +101,6 @@ Not yet run on a real team's data.
 
 Run the tests: `python3 -m unittest discover -s evals`. Use it as a CI gate: [references/release-gate.yml](skills/release-readiness/references/release-gate.yml) exits 1 on a hold.
 
-MIT licence. Made by [Dacard](https://www.dacard.ai). Claude is a trademark of Anthropic, PBC, and GitHub is a trademark of GitHub, Inc.; this skill is not affiliated with or endorsed by either.
+MIT licence. Made by [Dacard](https://www.dacard.ai). GitHub is a trademark of GitHub, Inc.; this skill is not affiliated with or endorsed by GitHub.
+
+Claude and Claude Code are trademarks of Anthropic, PBC. These skills are independent and not affiliated with or endorsed by Anthropic.

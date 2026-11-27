@@ -1,20 +1,20 @@
 {
   "name": "Acme Quote Assistant 2.4",
   "illustrative": true,
-  "owner": "Priya Shah",
+  "owner": "Quoting squad lead",
   "as_of": "2026-11-20",
   "commit": "4f2a9c1e7b3d",
   "ai_feature": true,
   "owners": {
-    "ci": "Tom Reyes",
-    "bugs": "Priya Shah",
-    "flags": "Tom Reyes",
-    "rollback": "Lena Okafor",
-    "evals": "Sam Patel"
+    "ci": "Quoting squad tech lead",
+    "bugs": "Quoting squad lead",
+    "flags": "Quoting squad tech lead",
+    "rollback": "Platform on-call lead",
+    "evals": "Quoting squad ML engineer"
   },
   "rollback": {
     "plan": "Turn off quote_assistant_v24, then redeploy release 2.3.6 from the release branch.",
-    "owner": "Lena Okafor",
+    "owner": "Platform on-call lead",
     "tested_on": "2026-11-12",
     "method": "flag off, then redeploy",
     "trigger": "Quote acceptance rate drops more than 5 points below 2.3 for 2 hours, or any invented price in the eval sample"

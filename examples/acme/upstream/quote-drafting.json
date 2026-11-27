@@ -7,7 +7,7 @@
   },
   "spec": {
     "tool": "spec-auditor",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "as_of": "2026-08-03",
     "source": {
       "kind": "file",
@@ -22,7 +22,7 @@
       "hold": {
         "value": 2,
         "unit": "findings",
-        "source": "spec-auditor 0.3.0, audit of examples/acme/specs/quote-drafting.md",
+        "source": "spec-auditor 0.3.1, audit of examples/acme/specs/quote-drafting.md",
         "window": {
           "from": "2026-08-03",
           "to": "2026-08-03"
@@ -32,7 +32,7 @@
       "note": {
         "value": 1,
         "unit": "findings",
-        "source": "spec-auditor 0.3.0, audit of examples/acme/specs/quote-drafting.md",
+        "source": "spec-auditor 0.3.1, audit of examples/acme/specs/quote-drafting.md",
         "window": {
           "from": "2026-08-03",
           "to": "2026-08-03"
@@ -42,7 +42,7 @@
       "pass": {
         "value": 11,
         "unit": "findings",
-        "source": "spec-auditor 0.3.0, audit of examples/acme/specs/quote-drafting.md",
+        "source": "spec-auditor 0.3.1, audit of examples/acme/specs/quote-drafting.md",
         "window": {
           "from": "2026-08-03",
           "to": "2026-08-03"

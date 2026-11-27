@@ -20,7 +20,7 @@ import readiness
 from readiness import InputError, decide
 from validate import check
 
-WAIVER = {"check": "bugs", "reason": "#2210 affects 3 accounts, all on manual chasing", "approved_by": "Dana Cole", "expires": "2026-11-27"}
+WAIVER = {"check": "bugs", "reason": "#2210 affects 3 accounts, all on manual chasing", "approved_by": "Head of Product, Invoicing squad", "expires": "2026-11-27"}
 
 
 class Base(unittest.TestCase):
@@ -39,7 +39,7 @@ class Base(unittest.TestCase):
     def one_open(self, name: str, **changes: object) -> Path:
         """The ready release with only the bugs check held (one critical bug)."""
         fx = self.fixture(name)
-        (fx / "bugs.csv").write_text("id,title,severity,state,owner\n2210,Paid invoice chased,critical,open,Ravi Menon\n", encoding="utf-8")
+        (fx / "bugs.csv").write_text("id,title,severity,state,owner\n2210,Paid invoice chased,critical,open,Invoicing squad engineer\n", encoding="utf-8")
         if changes:
             edit_release(fx, **changes)
         return fx
@@ -56,7 +56,7 @@ class Waivers(Base):
         text = readiness.report(d)
         self.assertIn("**Ready to ship, with 1 waiver.** 5 of 6 checks are ready to ship; 1 check holds under a waiver.", text)
         self.assertIn("| Open bugs within the severity limits | hold, waived |", text)
-        self.assertIn("Dana Cole", text)
+        self.assertIn("Head of Product, Invoicing squad", text)
 
     def test_a_waiver_never_rescues_a_release_with_another_held_check(self) -> None:
         d = self.call(FIXTURES / "acme-held")
@@ -69,7 +69,7 @@ class Waivers(Base):
 
     def test_a_waiver_that_does_not_count_says_why(self) -> None:
         cases = {
-            "cannot waive it": {**WAIVER, "approved_by": "Priya Shah"},
+            "cannot waive it": {**WAIVER, "approved_by": "Quoting squad lead"},
             "ran out on": {**WAIVER, "expires": "2026-11-19"},
             "beyond the 14-day limit": {**WAIVER, "expires": "2027-01-31"},
             "needs a reason": {**WAIVER, "reason": ""},
@@ -87,7 +87,7 @@ class Waivers(Base):
     def _fresh(self, waiver: dict) -> Path:
         work = Path(tempfile.mkdtemp(prefix="rr-wf-", dir=self.work))
         fx = copy_fixture("acme-ready", work)
-        (fx / "bugs.csv").write_text("id,title,severity,state,owner\n2210,Paid invoice chased,critical,open,Ravi Menon\n", encoding="utf-8")
+        (fx / "bugs.csv").write_text("id,title,severity,state,owner\n2210,Paid invoice chased,critical,open,Invoicing squad engineer\n", encoding="utf-8")
         edit_release(fx, waivers=[waiver])
         return fx
 
@@ -98,7 +98,7 @@ class Waivers(Base):
 
     def test_a_draft_must_name_the_waiver_and_may_not_say_all_checks_ready(self) -> None:
         d = self.call(self.one_open("acme-ready", waivers=[WAIVER]))
-        good = "Quote Assistant 2.4 is ready to ship with 1 waiver: 5 of 6 checks are ready. The critical bug #2210 is waived by Dana Cole until 2026-11-27."
+        good = "Quote Assistant 2.4 is ready to ship with 1 waiver: 5 of 6 checks are ready. The critical bug #2210 is waived by Head of Product, Invoicing squad until 2026-11-27."
         self.assertEqual(check(d, good), [])
         rules = [e["rule"] for e in check(d, "Quote Assistant 2.4 is ready to ship: all checks are ready.")]
         self.assertEqual(sorted(rules), ["all-ready-claim", "waiver-missing"])
@@ -139,9 +139,9 @@ class BriefAndTrigger(Base):
 
     def test_a_rollback_with_no_trigger_or_no_threshold_holds(self) -> None:
         fx = self.fixture("acme-ready")
-        edit_release(fx, rollback={"plan": "Flag off.", "owner": "Lena Okafor", "tested_on": "2026-11-12"})
+        edit_release(fx, rollback={"plan": "Flag off.", "owner": "Platform on-call lead", "tested_on": "2026-11-12"})
         self.assertIn("rollback.trigger is empty", self.call(fx)["holds"][0]["reasons"][0])
-        edit_release(fx, rollback={"plan": "Flag off.", "owner": "Lena Okafor", "tested_on": "2026-11-12", "trigger": "If it looks bad"})
+        edit_release(fx, rollback={"plan": "Flag off.", "owner": "Platform on-call lead", "tested_on": "2026-11-12", "trigger": "If it looks bad"})
         self.assertIn("no threshold", self.call(fx)["holds"][0]["reasons"][0])
 
 

@@ -20,9 +20,9 @@ from validate import check
 
 HELD_DRAFT = """Invoice Chaser 1.0 holds as of 2026-11-20: 3 of 6 checks are ready to ship.
 
-- CI: integration-tests is failing. Nadia Flores owns it.
-- Bugs: 1 critical bug is open (#2210). Marcus Lee owns it.
-- Evals: chase-message-tone passed 182 of 200 cases; its threshold needs 190. Sam Patel owns it.
+- CI: integration-tests is failing. Invoicing squad tech lead owns it.
+- Bugs: 1 critical bug is open (#2210). Invoicing squad lead owns it.
+- Evals: chase-message-tone passed 182 of 200 cases; its threshold needs 190. Quoting squad ML engineer owns it.
 
 It is not ready to ship until all three are fixed.
 """
@@ -55,7 +55,7 @@ class Validate(unittest.TestCase):
         self.assertEqual(check(self.held, HELD_DRAFT + "We are not ready to release. It isn't cleared for launch."), [])
 
     def test_dropping_a_held_check_or_its_owner_is_blocked(self) -> None:
-        draft = HELD_DRAFT.replace("- Evals: chase-message-tone passed 182 of 200 cases; its threshold needs 190. Sam Patel owns it.\n", "")
+        draft = HELD_DRAFT.replace("- Evals: chase-message-tone passed 182 of 200 cases; its threshold needs 190. Quoting squad ML engineer owns it.\n", "")
         self.assertEqual(sorted(rules(check(self.held, draft))), ["held-check-missing", "owner-missing"])
 
     def test_an_invented_number_is_blocked(self) -> None:

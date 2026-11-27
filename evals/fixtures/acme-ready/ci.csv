@@ -1,6 +1,6 @@
 check,conclusion,required,commit,url,owner
-unit-tests,success,yes,4f2a9c1e7b3d,,Tom Reyes
-integration-tests,success,yes,4f2a9c1e7b3d,,Tom Reyes
-lint,success,yes,4f2a9c1e7b3d,,Tom Reyes
-security-scan,success,yes,4f2a9c1e7b3d,,Aisha Noor
-visual-diff,failure,no,4f2a9c1e7b3d,,Tom Reyes
+unit-tests,success,yes,4f2a9c1e7b3d,,Quoting squad tech lead
+integration-tests,success,yes,4f2a9c1e7b3d,,Quoting squad tech lead
+lint,success,yes,4f2a9c1e7b3d,,Quoting squad tech lead
+security-scan,success,yes,4f2a9c1e7b3d,,Security lead
+visual-diff,failure,no,4f2a9c1e7b3d,,Quoting squad tech lead

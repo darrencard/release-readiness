@@ -1,4 +1,4 @@
 eval,cases,passed,threshold,run_at,commit,owner
-quote-line-items-correct,400,388,0.95,2026-11-19,4f2a9c1e7b3d,Sam Patel
-quote-tax-correct,250,250,0.99,2026-11-19,4f2a9c1e7b3d,Sam Patel
-no-invented-prices,300,297,0.98,2026-11-19,4f2a9c1e7b3d,Sam Patel
+quote-line-items-correct,400,388,0.95,2026-11-19,4f2a9c1e7b3d,Quoting squad ML engineer
+quote-tax-correct,250,250,0.99,2026-11-19,4f2a9c1e7b3d,Quoting squad ML engineer
+no-invented-prices,300,297,0.98,2026-11-19,4f2a9c1e7b3d,Quoting squad ML engineer
