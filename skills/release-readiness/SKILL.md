@@ -4,7 +4,7 @@ description: Says whether one software release is ready to ship or must hold, fr
 license: MIT. See LICENSE in the repository root.
 metadata:
   author: Dacard
-  version: "0.3.2"
+  version: "0.3.3"
 ---
 
 # Release readiness

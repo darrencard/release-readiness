@@ -110,10 +110,10 @@ class Versions(unittest.TestCase):
         plugin = json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))["version"]
         project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
         skill = re.search(r'version: "([^"]+)"', (SKILL / "SKILL.md").read_text(encoding="utf-8")).group(1)
-        self.assertEqual({plugin, project, skill, readiness.VERSION}, {"0.3.2"})
+        self.assertEqual({plugin, project, skill, readiness.VERSION}, {"0.3.3"})
 
     def test_the_changelog_has_a_dated_entry_for_this_version(self) -> None:
-        self.assertIn("## 0.3.2, 2026-11-27", (ROOT / "CHANGELOG.md").read_text(encoding="utf-8"))
+        self.assertIn("## 0.3.3, 2026-11-27", (ROOT / "CHANGELOG.md").read_text(encoding="utf-8"))
 
 
 class Vendored(unittest.TestCase):
